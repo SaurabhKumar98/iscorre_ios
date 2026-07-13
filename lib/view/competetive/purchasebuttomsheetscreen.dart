@@ -312,16 +312,16 @@ class _CategoryPaymentSheetState extends State<_CategoryPaymentSheet> {
                   selected: _selected == 'wallet',
                   onTap: () => setState(() => _selected = 'wallet'),
                 ),
-                SizedBox(height: 10.h),
+                // SizedBox(height: 10.h),
 
-                _MethodTile(
-                  icon: Icons.credit_card_rounded,
-                  title: 'Razorpay',
-                  subtitle: 'Pay via UPI, card, netbanking & more',
-                  color: Colors.blue.shade700,
-                  selected: _selected == 'razorpay',
-                  onTap: () => setState(() => _selected = 'razorpay'),
-                ),
+                // _MethodTile(
+                //   icon: Icons.credit_card_rounded,
+                //   title: 'Razorpay',
+                //   subtitle: 'Pay via UPI, card, netbanking & more',
+                //   color: Colors.blue.shade700,
+                //   selected: _selected == 'razorpay',
+                //   onTap: () => setState(() => _selected = 'razorpay'),
+                // ),
                 SizedBox(height: 20.h),
               ] else
                 SizedBox(height: 4.h),

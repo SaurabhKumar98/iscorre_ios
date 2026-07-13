@@ -233,16 +233,16 @@ class _CoursePaymentSheetState extends State<_CoursePaymentSheet> {
                   onTap: () =>
                       setState(() => _selected = CoursePaymentMethod.wallet),
                 ),
-                SizedBox(height: 10.h),
-                _MethodTile(
-                  icon: Icons.credit_card_rounded,
-                  title: 'Razorpay',
-                  subtitle: 'Pay via UPI, card, netbanking & more',
-                  color: Colors.blue.shade700,
-                  selected: _selected == CoursePaymentMethod.razorpay,
-                  onTap: () =>
-                      setState(() => _selected = CoursePaymentMethod.razorpay),
-                ),
+                // SizedBox(height: 10.h),
+                // _MethodTile(
+                //   icon: Icons.credit_card_rounded,
+                //   title: 'Razorpay',
+                //   subtitle: 'Pay via UPI, card, netbanking & more',
+                //   color: Colors.blue.shade700,
+                //   selected: _selected == CoursePaymentMethod.razorpay,
+                //   onTap: () =>
+                //       setState(() => _selected = CoursePaymentMethod.razorpay),
+                // ),
                 SizedBox(height: 20.h),
               ] else
                 SizedBox(height: 4.h),

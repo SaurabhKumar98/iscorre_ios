@@ -136,18 +136,18 @@ bool get _isFree => _finalPrice == 0;
                   onTap: () =>
                       setState(() => _selected = StorePaymentMethod.wallet),
                 ),
-                SizedBox(height: 10.h),
+                // SizedBox(height: 10.h),
 
                 // Razorpay
-                _MethodTile(
-                  icon: Icons.credit_card_rounded,
-                  title: 'Razorpay',
-                  subtitle: 'Pay via UPI, card, netbanking & more',
-                  color: Colors.blue.shade700,
-                  selected: _selected == StorePaymentMethod.razorpay,
-                  onTap: () =>
-                      setState(() => _selected = StorePaymentMethod.razorpay),
-                ),
+                // _MethodTile(
+                //   icon: Icons.credit_card_rounded,
+                //   title: 'Razorpay',
+                //   subtitle: 'Pay via UPI, card, netbanking & more',
+                //   color: Colors.blue.shade700,
+                //   selected: _selected == StorePaymentMethod.razorpay,
+                //   onTap: () =>
+                //       setState(() => _selected = StorePaymentMethod.razorpay),
+                // ),
                 SizedBox(height: 20.h),
               ] else
                 SizedBox(height: 4.h),

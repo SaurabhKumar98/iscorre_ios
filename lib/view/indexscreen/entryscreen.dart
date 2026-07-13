@@ -34,20 +34,21 @@ class _EntryScreenState extends State<EntryScreen> {
     '/profile': 4,
   };
 
-  @override
-  void initState() {
-    super.initState();
-    _currentIndex = widget.initialIndex;
+ @override
+void initState() {
+  super.initState();
+  _currentIndex = widget.initialIndex;
 
-    _pages = [
-      DashboardScreen(onMenuTap: () => scaffoldKey.currentState?.openDrawer()),
-      const StoreScreen(),
-      const ExamHallScreen(),
-      const CommunityScreen(),
-      const ProfileScreen(),
-    ];
-  }
-
+  _pages = [
+    DashboardScreen(onMenuTap: () => scaffoldKey.currentState?.openDrawer()),
+    const StoreScreen(),
+    ExamHallScreen(
+      onBrowseStore: () => _switchTab(1), // ✅ Store tab index
+    ),
+    const CommunityScreen(),
+    const ProfileScreen(),
+  ];
+}
   /// Called by AppDrawer to switch bottom bar tabs
   void _switchTab(int index) {
     setState(() => _currentIndex = index);

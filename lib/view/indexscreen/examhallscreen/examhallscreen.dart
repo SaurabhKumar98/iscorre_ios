@@ -2,6 +2,7 @@ import 'package:firstedu/data/models/api_models/examhall/examhall_models.dart';
 import 'package:firstedu/data/models/api_models/resourcestore/Categorymodels.dart';
 import 'package:firstedu/data/repo/examhall/examhall_repositories.dart';
 import 'package:firstedu/res/constants/colors/appcolors.dart';
+import 'package:firstedu/res/routes/approutesname.dart';
 import 'package:firstedu/res/widgets/custom_button.dart';
 import 'package:firstedu/res/widgets/custom_card.dart';
 import 'package:firstedu/res/widgets/custom_filter_chips.dart';
@@ -10,13 +11,15 @@ import 'package:firstedu/res/widgets/custom_text.dart';
 import 'package:firstedu/view/indexscreen/examhallscreen/bundelsdetailsscreen.dart';
 import 'package:firstedu/view/indexscreen/examhallscreen/examinstructionscreen.dart';
 import 'package:firstedu/view/indexscreen/examhallscreen/questionscreen.dart';
+import 'package:firstedu/view/indexscreen/store_view/storescreen.dart';
 import 'package:firstedu/view_models/examhallprovider/examhallprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 class ExamHallScreen extends StatefulWidget {
-  const ExamHallScreen({super.key});
+  final VoidCallback? onBrowseStore;
+  const ExamHallScreen({super.key, this.onBrowseStore});
 
   @override
   State<ExamHallScreen> createState() => _ExamHallScreenState();
@@ -392,35 +395,44 @@ Future<void> _navigateAndRefresh(Widget screen) async {
         }
 
         if (provider.items.isEmpty) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 60.h),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.inbox_outlined,
-                    size: 60.sp,
-                    color: Colors.grey.shade400,
-                  ),
-                  SizedBox(height: 16.h),
-                  CustomText(
-                    text: "No exams found",
-                    size: 16,
-                    weight: FontWeight.w600,
-                    color: Colors.grey.shade600,
-                  ),
-                  SizedBox(height: 8.h),
-                  CustomText(
-                    text: "Try a different filter or check back later.",
-                    size: 13,
-                    color: Colors.grey.shade400,
-                    align: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
+  return Center(
+    child: Padding(
+      padding: EdgeInsets.symmetric(vertical: 60.h),
+      child: Column(
+        children: [
+          Icon(
+            Icons.inbox_outlined,
+            size: 60.sp,
+            color: Colors.grey.shade400,
+          ),
+          SizedBox(height: 16.h),
+          CustomText(
+            text: "No exams found",
+            size: 16,
+            weight: FontWeight.w600,
+            color: Colors.grey.shade600,
+          ),
+          SizedBox(height: 8.h),
+          CustomText(
+            text: "You haven't purchased any tests yet.",
+            size: 13,
+            color: Colors.grey.shade400,
+            align: TextAlign.center,
+          ),
+          SizedBox(height: 20.h),
+          CustomButton(
+            title: "Resources Store",
+            icon: Icons.storefront_outlined,
+            backgroundColor: drawerColor,
+            textColor: Colors.white,
+       onTap: () {
+  widget.onBrowseStore?.call();
+},  ),
+        ],
+      ),
+    ),
+  );
+}
 
         return Column(
           children: [

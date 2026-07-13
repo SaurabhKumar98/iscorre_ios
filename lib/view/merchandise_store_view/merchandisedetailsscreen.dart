@@ -738,17 +738,17 @@ enabled: prov.monetaryBalance >= (coupon?.finalAmount ?? item.effectivePrice),
     : null,
           ),
 
-          SizedBox(height: 8.h),
+          // SizedBox(height: 8.h),
 
-          _methodTile(
-            value: 'razorpay',
-            icon: Icons.credit_card_outlined,
-            iconColor: Colors.blue.shade600,
-            title: 'Pay via Card / UPI',
-            subtitle:
-'₹${coupon?.finalAmount ?? item.effectivePrice}  •  Cards, UPI, Net Banking',
-            enabled: true,
-          ),
+//           _methodTile(
+//             value: 'razorpay',
+//             icon: Icons.credit_card_outlined,
+//             iconColor: Colors.blue.shade600,
+//             title: 'Pay via Card / UPI',
+//             subtitle:
+// '₹${coupon?.finalAmount ?? item.effectivePrice}  •  Cards, UPI, Net Banking',
+//             enabled: true,
+//           ),
 
           SizedBox(height: 20.h),
 

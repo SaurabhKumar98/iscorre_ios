@@ -60,7 +60,7 @@ class _AppDrawerState extends State<AppDrawer> {
             physics: const BouncingScrollPhysics(),
             children: [
               _header(),
-              const SizedBox(height: 24),
+              // const SizedBox(height: 2),
 
               ...List.generate(drawerMenuItems.length, (index) {
                 final item = drawerMenuItems[index];
@@ -211,33 +211,11 @@ class _AppDrawerState extends State<AppDrawer> {
   Widget _header() {
     return Row(
       children: [
-        Container(
-          height: 42,
-          width: 42,
-          decoration: BoxDecoration(
-            color: activeItemColor,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Center(
-            child: Text(
-              "I",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
-                fontSize: 18,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          "iScorre.",
-          style: GoogleFonts.poppins(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
+      Image.asset(
+  'assets/images/appdraweriscorre.png',
+  height: 80,
+  fit: BoxFit.contain,
+),
       ],
     );
   }

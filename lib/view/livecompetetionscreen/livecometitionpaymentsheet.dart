@@ -632,15 +632,15 @@ class _LiveCompetitionPaymentSheetState
         selected: _selectedMethod == 'wallet',
         onTap: () => setState(() => _selectedMethod = 'wallet'),
       ),
-      SizedBox(height: 8.h),
-      _MethodTile(
-        icon: Icons.payment_rounded,
-        title: 'Razorpay',
-        subtitle: 'UPI, Cards, Net Banking & more',
-        color: const Color(0xFF0EA5E9),
-        selected: _selectedMethod == 'razorpay',
-        onTap: () => setState(() => _selectedMethod = 'razorpay'),
-      ),
+      // SizedBox(height: 8.h),
+      // _MethodTile(
+      //   icon: Icons.payment_rounded,
+      //   title: 'Razorpay',
+      //   subtitle: 'UPI, Cards, Net Banking & more',
+      //   color: const Color(0xFF0EA5E9),
+      //   selected: _selectedMethod == 'razorpay',
+      //   onTap: () => setState(() => _selectedMethod = 'razorpay'),
+      // ),
     ],
   );
 

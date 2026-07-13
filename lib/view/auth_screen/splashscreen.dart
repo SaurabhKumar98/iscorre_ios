@@ -14,13 +14,16 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
   late AnimationController _scaleController;
   late AnimationController _fadeController;
   late AnimationController _pulseController;
+  late AnimationController _bgController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
   late Animation<double> _pulseAnimation;
+  late Animation<double> _bgAnimation;
 
   @override
   void initState() {
@@ -44,57 +47,53 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
     );
 
-    // Pulse Animation
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
     )..repeat(reverse: true);
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Start animations
-    _scaleController.forward();
-    _fadeController.forward();
+    _bgController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    )..repeat(reverse: true);
+    _bgAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _bgController, curve: Curves.easeInOut),
+    );
 
-    // Navigate to Login after 3 seconds using named route
-
-_initApp();
+    _initApp();
   }
 
   Future<void> _initApp() async {
-  // animations start
-  _scaleController.forward();
-  _fadeController.forward();
+    _scaleController.forward();
+    _fadeController.forward();
 
-  // wait for splash animation
-  await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  final sessionProvider =
-      Provider.of<UserSessionProvider>(context, listen: false);
+    final sessionProvider =
+        Provider.of<UserSessionProvider>(context, listen: false);
 
-  // 🔥 hydrate session
-  await sessionProvider.hydrate(context);
+    await sessionProvider.hydrate(context);
 
-  if (!sessionProvider.hydrated) return;
+    if (!sessionProvider.hydrated) return;
 
-  // 🔥 decide route
-  Navigator.pushNamedAndRemoveUntil(
-  context,
-  sessionProvider.initialRoute,
-  (route) => false,
-);
-}
- 
- 
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      sessionProvider.initialRoute,
+      (route) => false,
+    );
+  }
 
   @override
   void dispose() {
     _scaleController.dispose();
     _fadeController.dispose();
     _pulseController.dispose();
+    _bgController.dispose();
     super.dispose();
   }
 
@@ -116,112 +115,154 @@ _initApp();
             end: Alignment.bottomRight,
           ),
         ),
-        child: Stack(
-          children: [
-            // Animated Background Circles
-            _buildBackgroundCircles(),
-
-            // Main Content
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Animated Logo
-                  ScaleTransition(
-                    scale: _scaleAnimation,
-                    child: AnimatedBuilder(
-                      animation: _pulseAnimation,
-                      builder: (context, child) {
-                        return Transform.scale(
-                          scale: _pulseAnimation.value,
-                          child: Container(
-                            padding: EdgeInsets.all(40.w),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.white.withOpacity(0.3),
-                                  blurRadius: 40.r,
-                                  spreadRadius: 10.r,
-                                ),
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.2),
-                                  blurRadius: 30.r,
-                                  offset: Offset(0, 15.h),
-                                ),
-                              ],
-                            ),
-                            child: Icon(
-                              Icons.school_rounded,
-                              size: 80.sp,
-                              color: drawerColor,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 40.h),
-
-                  // App Name with Fade
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Column(
-                      children: [
-                        const CustomText(
-                          text: "IScorre.",
-                          size: 42,
-                          weight: FontWeight.w800,
-                          color: Colors.white,
-                        ),
-                        SizedBox(height: 8.h),
-                        CustomText(
-                          text: "Learn. Grow. Succeed.",
-                          size: 16,
-                          weight: FontWeight.w400,
-                          color: Colors.white.withOpacity(0.9),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 60.h),
-
-                  // Loading Indicator
-                  FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: SizedBox(
-                      width: 40.w,
-                      height: 40.h,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Colors.white.withOpacity(0.8),
-                        ),
-                        strokeWidth: 3,
+        child: SafeArea(
+          child: Stack(
+            children: [
+              // Decorative soft blobs, drifting subtly
+              AnimatedBuilder(
+                animation: _bgAnimation,
+                builder: (context, child) {
+                  return Positioned(
+                    top: -80.h + (_bgAnimation.value * 20),
+                    left: -60.w,
+                    child: Container(
+                      width: 220.w,
+                      height: 220.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.05),
                       ),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
-            ),
+              AnimatedBuilder(
+                animation: _bgAnimation,
+                builder: (context, child) {
+                  return Positioned(
+                    bottom: -100.h - (_bgAnimation.value * 25),
+                    right: -70.w,
+                    child: Container(
+                      width: 260.w,
+                      height: 260.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFF0D47A1).withOpacity(0.25),
+                      ),
+                    ),
+                  );
+                },
+              ),
 
-            // Version at Bottom
-            Positioned(
-              bottom: 40.h,
-              left: 0,
-              right: 0,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Center(
-                  child: CustomText(
-                    text: "Version 1.0.0",
-                    size: 12,
-                    color: Colors.white.withOpacity(0.7),
+              // Thin accent ring, top-right
+              Positioned(
+                top: 60.h,
+                right: 30.w,
+                child: Opacity(
+                  opacity: 0.15,
+                  child: Container(
+                    width: 70.w,
+                    height: 70.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 1.2),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+
+              _buildBackgroundCircles(),
+
+              // ---- Single merged center content: Icon on top, Image below ----
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Animated Icon (white circle with school icon)
+                    ScaleTransition(
+                      scale: _scaleAnimation,
+                      child: AnimatedBuilder(
+                        animation: _pulseAnimation,
+                        builder: (context, child) {
+                          return Transform.scale(
+                            scale: _pulseAnimation.value,
+                            child: Container(
+                              padding: EdgeInsets.all(40.w),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.white.withOpacity(0.3),
+                                    blurRadius: 40.r,
+                                    spreadRadius: 10.r,
+                                  ),
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    blurRadius: 30.r,
+                                    offset: Offset(0, 15.h),
+                                  ),
+                                ],
+                              ),
+                              child: Icon(
+                                Icons.school_rounded,
+                                size: 80.sp,
+                                color: drawerColor,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    SizedBox(height: 24.h),
+
+                    // Image below the icon, with its own pulsing glow
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: AnimatedBuilder(
+                          animation: _pulseAnimation,
+                          builder: (context, child) {
+                            return Container(
+                              width: 230.w * _pulseAnimation.value,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: child,
+                            );
+                          },
+                          child: Image.asset(
+                            'assets/images/splashscreen.png',
+                            width: 230.w,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 40.h),
+
+                    // Loading Indicator
+                    FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: SizedBox(
+                        width: 40.w,
+                        height: 40.h,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white.withOpacity(0.8),
+                          ),
+                          strokeWidth: 3,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

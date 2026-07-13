@@ -135,15 +135,15 @@ class _PaymentSheetState extends State<_PaymentSheet> {
                   onTap: () => setState(() => _selected = PaymentMethod.wallet),
                 ),
                 SizedBox(height: 10.h),
-                _MethodTile(
-                  icon: Icons.credit_card_rounded,
-                  title: 'Razorpay',
-                  subtitle: 'Pay via UPI, card, netbanking & more',
-                  color: Colors.blue.shade700,
-                  selected: _selected == PaymentMethod.razorpay,
-                  onTap: () => setState(() => _selected = PaymentMethod.razorpay),
-                ),
-                SizedBox(height: 20.h),
+                // _MethodTile(
+                //   icon: Icons.credit_card_rounded,
+                //   title: 'Razorpay',
+                //   subtitle: 'Pay via UPI, card, netbanking & more',
+                //   color: Colors.blue.shade700,
+                //   selected: _selected == PaymentMethod.razorpay,
+                //   onTap: () => setState(() => _selected = PaymentMethod.razorpay),
+                // ),
+                // SizedBox(height: 20.h),
               ] else
                 SizedBox(height: 4.h),
 
@@ -481,7 +481,6 @@ class _PaymentSheetState extends State<_PaymentSheet> {
     );
   }
 
-  // ── Confirm Button ────────────────────────────────────────────────────────
 
   Widget _buildConfirmButton({
     required WorkshopProvider provider,

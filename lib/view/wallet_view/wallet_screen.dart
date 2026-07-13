@@ -78,9 +78,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         const SizedBox(height: 16),
                         _tabs(),
                         const SizedBox(height: 16),
-                        selectedTab == 0
-                            ? _topUpCard(provider)
-                            : _redeemPointsCard(provider),
+                            _redeemPointsCard(provider),
                         const SizedBox(height: 20),
                         const CustomText(
                           text: "Recent Transactions",
@@ -101,75 +99,84 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
-  Widget _balanceCard(WalletProvider provider) {
-    return CustomCard(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF1E3A8A), Color(0xFF0F172A)],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.15),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+Widget _balanceCard(WalletProvider provider) {
+  return CustomCard(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      gradient: const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF1E3A8A), Color(0xFF0F172A)],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            right: -10,
-            bottom: -10,
-            child: Icon(
-              Icons.account_balance_wallet,
-              size: 120,
-              color: Colors.white.withOpacity(.05),
-            ),
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(.15),
+          blurRadius: 20,
+          offset: const Offset(0, 10),
+        ),
+      ],
+    ),
+    child: Stack(
+      children: [
+        Positioned(
+          right: -10,
+          bottom: -10,
+          child: Icon(
+            Icons.account_balance_wallet,
+            size: 120,
+            color: Colors.white.withOpacity(.05),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const CustomText(
-                text: "TOTAL BALANCE",
-                size: 13,
-                weight: FontWeight.w500,
+        ),
+        // ✅ Info icon pinned to top-right corner
+        Positioned(
+          top: 0,
+          right: 0,
+          child: GestureDetector(
+            onTap: _showAboutWalletDialog,
+            behavior: HitTestBehavior.opaque,
+            child: const Padding(
+              padding: EdgeInsets.all(4),
+              child: Icon(
+                Icons.info_outline,
+                size: 20,
                 color: Colors.white70,
               ),
-              const SizedBox(height: 6),
-              if (provider.isLoading && provider.balance == null)
-                const SizedBox(
-                  height: 40,
-                  child: CircularProgressIndicator(
-                    color: Colors.white,
-                    strokeWidth: 2,
-                  ),
-                )
-              else
-                CustomText(
-                  text:
-                      "₹${provider.balance?.monetaryBalance.toStringAsFixed(2) ?? '0.00'}",
-                  size: 34,
-                  weight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              // const SizedBox(height: 8),
-              // const CustomText(
-              //   text: "**** **** 4288",
-              //   size: 12,
-              //   weight: FontWeight.w400,
-              //   color: Colors.white70,
-              // ),
-            ],
+            ),
           ),
-        ],
-      ),
-    );
-  }
-
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const CustomText(
+              text: "TOTAL BALANCE",
+              size: 13,
+              weight: FontWeight.w500,
+              color: Colors.white70,
+            ),
+            const SizedBox(height: 6),
+            if (provider.isLoading && provider.balance == null)
+              const SizedBox(
+                height: 40,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2,
+                ),
+              )
+            else
+              CustomText(
+                text:
+                    "₹${provider.balance?.monetaryBalance.toStringAsFixed(2) ?? '0.00'}",
+                size: 34,
+                weight: FontWeight.w700,
+                color: Colors.white,
+              ),
+          ],
+        ),
+      ],
+    ),
+  );
+}
   Widget _rewardCard(WalletProvider provider) {
     return CustomCard(
       padding: const EdgeInsets.all(20),
@@ -237,20 +244,76 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+void _showAboutWalletDialog() {
+  showDialog(
+    context: context,
+    barrierDismissible: true,
+    builder: (_) => Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.7,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const CustomText(
+                  text: "About Wallet",
+                  size: 20,
+                  weight: FontWeight.w700,
+                  align: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  "The iScore wallet is used to manage and track your in-app transaction history."
+                  "Every new user receives ₹500 wallet balance to get started on iScore."
+                  "Referral credits of ₹100 are added to your wallet whenever someone you refer signs in and completes a test."
+                  "For paid quizzes, your quiz fee is automatically deducted from your wallet balance if it's sufficient. If your balance is insufficient, you'll be redirected to Razorpay to complete the payment securely."
+                  "You can also add funds to your wallet externally to participate in paid quizzes.",
+                  softWrap: true,
+                  maxLines: null,
+                  overflow: TextOverflow.visible,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    title: "Got it",
+                    onTap: () => Navigator.pop(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
+}
   Widget _tabs() {
     return Row(
       children: [
-        Expanded(
-          child: CustomButton(
-            title: "Add Money",
-            backgroundColor: selectedTab == 0
-                ? drawerColor
-                : Colors.grey.shade300,
-            textColor: selectedTab == 0 ? Colors.white : Colors.black54,
-            onTap: () => setState(() => selectedTab = 0),
-          ),
-        ),
-        const SizedBox(width: 10),
+        // Expanded(
+        //   child: CustomButton(
+        //     title: "Add Money",
+        //     backgroundColor: selectedTab == 0
+        //         ? drawerColor
+        //         : Colors.grey.shade300,
+        //     textColor: selectedTab == 0 ? Colors.white : Colors.black54,
+        //     onTap: () => setState(() => selectedTab = 0),
+        //   ),
+        // ),
+        // const SizedBox(width: 10),
         Expanded(
           child: CustomButton(
             title: "Redeem Points",
