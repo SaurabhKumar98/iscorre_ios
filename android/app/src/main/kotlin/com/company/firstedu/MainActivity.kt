@@ -1,4 +1,4 @@
-package com.firstedu.app
+package com.iScorre.app
 
 import android.os.Build
 import android.provider.MediaStore

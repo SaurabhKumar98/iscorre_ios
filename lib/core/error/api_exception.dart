@@ -10,9 +10,7 @@ class ApiException extends AppException {
   factory ApiException.fromResponse(Response response) {
     final statusCode = response.statusCode;
     final data = response.data;
-
     String message = 'Something went wrong';
-
     if (data is Map<String, dynamic>) {
       if (data.containsKey('message') && data['message'] != null) {
         message = data['message'].toString();
@@ -20,7 +18,6 @@ class ApiException extends AppException {
         message = data['error'].toString();
       }
     }
-
     return ApiException(
       message,
       statusCode: statusCode,

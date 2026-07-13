@@ -1,5 +1,4 @@
 // lib/core/services/firebase_messaging_service.dart
-
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -15,7 +14,6 @@ import 'package:firstedu/res/routes/approutesname.dart';
 import 'package:firstedu/utils/apptoster/errortoaster.dart';
 
 const String _forceLogoutType = 'FORCE_LOGOUT';
-
 
 @pragma('vm:entry-point')
 Future<void> firebaseBackgroundHandler(RemoteMessage message) async {
@@ -205,6 +203,12 @@ Future<void> initMessaging() async {
         sound: true,
       );
 
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
   if (kDebugMode) {
     debugPrint('🔐 [FCM] Permission status: ${settings.authorizationStatus}');
   }
@@ -237,16 +241,20 @@ Future<void> initMessaging() async {
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     if (kDebugMode) {
       debugPrint('📨 [FCM] Foreground message: ${message.messageId}');
+      debugPrint('📨 Notification: ${message.notification}');
+      debugPrint('📨 Data: ${message.data}');
     }
 
-    // 🚨 Force logout check
     if (message.data['type'] == _forceLogoutType) {
       handleForceLogout();
-      return; // don't show notification
+      return;
     }
 
     final RemoteNotification? notification = message.notification;
-    if (notification != null) {
+
+    if (notification == null) return;
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
       showGeneralNotification(data: message.data, notification: notification);
     }
   });
