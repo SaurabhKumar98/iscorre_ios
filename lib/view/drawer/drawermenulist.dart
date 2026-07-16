@@ -157,7 +157,7 @@ final drawerMenuItems = [
   ),
   DrawerItemModel(
     // index 17
-    title: "Cetificates",
+    title: "Certificates",
     icon: Icons.workspace_premium,
     route: AppRoutesName.certificate,
   ),

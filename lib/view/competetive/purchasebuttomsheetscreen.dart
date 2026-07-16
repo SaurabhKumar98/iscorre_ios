@@ -290,7 +290,7 @@ class _CategoryPaymentSheetState extends State<_CategoryPaymentSheet> {
               SizedBox(height: 20.h),
 
               // ── Coupon (hidden for upgrades) ─────────────────────
-              if (!widget.isUpgrade && _price > 0) _redeemSection(provider),
+              // if (!widget.isUpgrade && _price > 0) _redeemSection(provider),
 
               // ── Payment methods ──────────────────────────────────
               if (_price > 0 && !_isFree) ...[

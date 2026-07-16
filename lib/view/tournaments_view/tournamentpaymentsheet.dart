@@ -185,7 +185,7 @@ class _TournamentPaymentSheetState extends State<_TournamentPaymentSheet> {
               SizedBox(height: 20.h),
 
               // ── Coupon ───────────────────────────────────────
-              if (!_isFree) _redeemSection(),
+              // if (!_isFree) _redeemSection(),
 
               // ── Payment Methods ──────────────────────────────
               if (!_isFree) ...[

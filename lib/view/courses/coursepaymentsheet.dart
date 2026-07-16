@@ -212,7 +212,7 @@ class _CoursePaymentSheetState extends State<_CoursePaymentSheet> {
               SizedBox(height: 20.h),
 
               // ✅ provider passed explicitly so _redeemSection can use it
-              if (!_isFree) _redeemSection(provider),
+              // if (!_isFree) _redeemSection(provider),
 
               if (!_isFree) ...[
                 Text(

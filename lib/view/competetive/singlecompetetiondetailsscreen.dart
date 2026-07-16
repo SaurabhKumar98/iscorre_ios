@@ -1280,7 +1280,7 @@ class _AccessCard extends StatelessWidget {
               elevation: 0,
             ),
             child: Text(
-              price == 0 ? 'Get Free Access' : 'Buy Bundle Now',
+              price == 0 ? 'Get Free Access' : 'Take Bundle Now',
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,

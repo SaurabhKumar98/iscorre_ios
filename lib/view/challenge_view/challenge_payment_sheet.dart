@@ -162,7 +162,7 @@ class _ChallengePaymentSheetState extends State<_ChallengePaymentSheet> {
               SizedBox(height: 20.h),
 
               // ── Coupon ───────────────────────────────────────────────────
-              if (_basePrice > 0) _redeemSection(provider),
+              // if (_basePrice > 0) _redeemSection(provider),
 
               // ── Payment methods ──────────────────────────────────────────
               if (!_isFree) ...[

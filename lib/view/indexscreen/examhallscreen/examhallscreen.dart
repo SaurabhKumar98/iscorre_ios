@@ -25,7 +25,8 @@ class ExamHallScreen extends StatefulWidget {
   State<ExamHallScreen> createState() => _ExamHallScreenState();
 }
 
-class _ExamHallScreenState extends State<ExamHallScreen> with WidgetsBindingObserver {
+class _ExamHallScreenState extends State<ExamHallScreen>
+    with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
 
   static const _typeFilters = [
@@ -39,7 +40,7 @@ class _ExamHallScreenState extends State<ExamHallScreen> with WidgetsBindingObse
   @override
   void initState() {
     super.initState();
-     WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ExamHallProvider>().init(context);
     });
@@ -58,7 +59,7 @@ class _ExamHallScreenState extends State<ExamHallScreen> with WidgetsBindingObse
 
   @override
   void dispose() {
-     WidgetsBinding.instance.removeObserver(this); 
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     super.dispose();
   }
@@ -71,26 +72,27 @@ class _ExamHallScreenState extends State<ExamHallScreen> with WidgetsBindingObse
     }
   }
 
-Future<void> _navigateAndRefresh(Widget screen) async {
-  // ✅ Do NOT clear before push — causes ugly flash and can break await chain
-  await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+  Future<void> _navigateAndRefresh(Widget screen) async {
+    // ✅ Do NOT clear before push — causes ugly flash and can break await chain
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 
-  if (!mounted) return;
+    if (!mounted) return;
 
-  // ✅ Clear + fetch only AFTER returning
-  context.read<ExamHallProvider>().clearItems();
-  await context.read<ExamHallProvider>().fetchItems(context);
-}
+    // ✅ Clear + fetch only AFTER returning
+    context.read<ExamHallProvider>().clearItems();
+    await context.read<ExamHallProvider>().fetchItems(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF6F7FB),
       body: RefreshIndicator(
-          onRefresh: () => context.read<ExamHallProvider>().fetchItems(context),
+        onRefresh: () => context.read<ExamHallProvider>().fetchItems(context),
         child: CustomScrollView(
-           physics: const BouncingScrollPhysics(
-      parent: AlwaysScrollableScrollPhysics(),
-    ),
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
           controller: _scrollController,
           slivers: [
             const CustomSliverAppBar(
@@ -395,44 +397,45 @@ Future<void> _navigateAndRefresh(Widget screen) async {
         }
 
         if (provider.items.isEmpty) {
-  return Center(
-    child: Padding(
-      padding: EdgeInsets.symmetric(vertical: 60.h),
-      child: Column(
-        children: [
-          Icon(
-            Icons.inbox_outlined,
-            size: 60.sp,
-            color: Colors.grey.shade400,
-          ),
-          SizedBox(height: 16.h),
-          CustomText(
-            text: "No exams found",
-            size: 16,
-            weight: FontWeight.w600,
-            color: Colors.grey.shade600,
-          ),
-          SizedBox(height: 8.h),
-          CustomText(
-            text: "You haven't purchased any tests yet.",
-            size: 13,
-            color: Colors.grey.shade400,
-            align: TextAlign.center,
-          ),
-          SizedBox(height: 20.h),
-          CustomButton(
-            title: "Resources Store",
-            icon: Icons.storefront_outlined,
-            backgroundColor: drawerColor,
-            textColor: Colors.white,
-       onTap: () {
-  widget.onBrowseStore?.call();
-},  ),
-        ],
-      ),
-    ),
-  );
-}
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 60.h),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.inbox_outlined,
+                    size: 60.sp,
+                    color: Colors.grey.shade400,
+                  ),
+                  SizedBox(height: 16.h),
+                  CustomText(
+                    text: "No exams found",
+                    size: 16,
+                    weight: FontWeight.w600,
+                    color: Colors.grey.shade600,
+                  ),
+                  SizedBox(height: 8.h),
+                  CustomText(
+                    text: "You haven't purchased any tests yet.",
+                    size: 13,
+                    color: Colors.grey.shade400,
+                    align: TextAlign.center,
+                  ),
+                  SizedBox(height: 20.h),
+                  CustomButton(
+                    title: "Resources Store",
+                    icon: Icons.storefront_outlined,
+                    backgroundColor: drawerColor,
+                    textColor: Colors.white,
+                    onTap: () {
+                      widget.onBrowseStore?.call();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
 
         return Column(
           children: [
@@ -619,37 +622,37 @@ Future<void> _navigateAndRefresh(Widget screen) async {
             ],
           ),
           SizedBox(height: 16.h),
-CustomText(
-  text: title,
-  size: 18,
-  weight: FontWeight.w600,
-  maxLines: 3,
-),
+          CustomText(
+            text: title,
+            size: 18,
+            weight: FontWeight.w600,
+            maxLines: 3,
+          ),
 
-if (!isBundle &&
-    item.test?.categoryPath != null &&
-    item.test!.categoryPath!.isNotEmpty) ...[
-  SizedBox(height: 6.h),
-  Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Icon(
-        Icons.account_tree_outlined,
-        size: 14.sp,
-        color: Colors.grey.shade600,
-      ),
-      SizedBox(width: 4.w),
-      Expanded(
-        child: CustomText(
-          text: item.test!.categoryPath!,
-          size: 12,
-          color: Colors.grey.shade600,
-          maxLines: 2,
-        ),
-      ),
-    ],
-  ),
-],
+          if (!isBundle &&
+              item.test?.categoryPath != null &&
+              item.test!.categoryPath!.isNotEmpty) ...[
+            SizedBox(height: 6.h),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.account_tree_outlined,
+                  size: 14.sp,
+                  color: Colors.grey.shade600,
+                ),
+                SizedBox(width: 4.w),
+                Expanded(
+                  child: CustomText(
+                    text: item.test!.categoryPath!,
+                    size: 12,
+                    color: Colors.grey.shade600,
+                    maxLines: 2,
+                  ),
+                ),
+              ],
+            ),
+          ],
           if (isBundle && testCount > 0) ...[
             SizedBox(height: 8.h),
             Row(
@@ -771,40 +774,43 @@ if (!isBundle &&
     );
   }
 
- // ✅ Change void → Future<void> so _navigateAndRefresh is properly awaited
-Future<void> _onAction(BuildContext context, ExamHallItem item) async {
-  if (item.type == 'testBundle') {
-    await _navigateAndRefresh(BundleDetailScreen(bundleItem: item));
-    return;
-  }
+  // ✅ Change void → Future<void> so _navigateAndRefresh is properly awaited
+  Future<void> _onAction(BuildContext context, ExamHallItem item) async {
+    if (item.type == 'testBundle') {
+      await _navigateAndRefresh(BundleDetailScreen(bundleItem: item));
+      return;
+    }
 
-  context.read<ExamSessionProvider>().reset();
+    context.read<ExamSessionProvider>().reset();
 
-  if (item.isCompleted && item.examSessionId != null) {
-    await _navigateAndRefresh(ExamResultsScreen(sessionId: item.examSessionId!));
-    return;
-  }
+    if (item.isCompleted && item.examSessionId != null) {
+      await _navigateAndRefresh(
+        ExamResultsScreen(sessionId: item.examSessionId!),
+      );
+      return;
+    }
 
-  if (item.isInProgress) {
+    if (item.isInProgress) {
+      await _navigateAndRefresh(
+        ExamScreen(
+          testId: item.test?.id ?? '',
+          examTitle: item.test?.title ?? 'Exam',
+          existingSessionId: null,
+          showPauseButton: true,
+        ),
+      );
+      return;
+    }
+
     await _navigateAndRefresh(
-      ExamScreen(
+      ExamInstructionsScreen(
         testId: item.test?.id ?? '',
         examTitle: item.test?.title ?? 'Exam',
-        existingSessionId: null,
-        showPauseButton: true,
+        isBundleTest: false,
       ),
     );
-    return;
   }
 
-  await _navigateAndRefresh(
-    ExamInstructionsScreen(
-      testId: item.test?.id ?? '',
-      examTitle: item.test?.title ?? 'Exam',
-      isBundleTest: false,
-    ),
-  );
-}
   String _formatDate(DateTime date) => "${date.day}/${date.month}/${date.year}";
 }
 

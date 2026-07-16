@@ -113,7 +113,7 @@ bool get _isFree => _finalPrice == 0;
 
               SizedBox(height: 20.h),
 
-              if (!_isFree) _redeemSection(),
+              // if (!_isFree) _redeemSection(),
 
               if (!_isFree) ...[
                 Text(

@@ -284,7 +284,7 @@ class _CourseDetailsScreenState extends State<CourseDetailsScreen> {
                         )
                       else
                         _actionButton(
-                          label: "Buy Now",
+                          label: "Take Test",
                           icon: Icons.shopping_bag_outlined,
                           color: const Color(0xFFFF5A00),
                           onPressed: () => showCoursePaymentSheet(

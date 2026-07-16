@@ -872,7 +872,7 @@ class _SectorCard extends StatelessWidget {
                               ),
                               if (upgradeCost > 0)
                                 Text(
-                                  'Upgrade: ₹$upgradeCost',
+                                  'Access Bundle: ₹$upgradeCost',
                                   style: GoogleFonts.poppins(
                                     fontSize: 11,
                                     color: Colors.orange.shade700,
@@ -881,7 +881,7 @@ class _SectorCard extends StatelessWidget {
                                 ),
                             ] else if (upgradable) ...[
                               Text(
-                                'Upgrade: ₹$upgradeCost',
+                                'Access Bundle: ₹$upgradeCost',
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -940,7 +940,7 @@ class _SectorCard extends StatelessWidget {
                       children: [
                         if (!hasAccess && !isFree && !upgradable)
                           _actionButton(
-                            label: 'Buy Now',
+                            label: 'Take Test',
                             color: accentColor,
                             icon: Icons.shopping_cart_rounded,
                             onTap: () => showCategoryPaymentSheet(
@@ -950,7 +950,7 @@ class _SectorCard extends StatelessWidget {
                           ),
                         if (upgradable && !hasAccess)
                           _actionButton(
-                            label: 'Upgrade',
+                            label: 'Access Bundle',
                             color: const Color(0xFFEA580C),
                             icon: Icons.upgrade_rounded,
                             onTap: () => showCategoryPaymentSheet(
@@ -964,7 +964,7 @@ class _SectorCard extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(right: 8),
                             child: _actionButton(
-                              label: 'Upgrade',
+                              label: 'Access Bundle',
                               color: const Color(0xFFEA580C),
                               icon: Icons.upgrade_rounded,
                               onTap: () => showCategoryPaymentSheet(

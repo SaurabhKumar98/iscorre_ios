@@ -78,7 +78,7 @@ class _WalletScreenState extends State<WalletScreen> {
                         const SizedBox(height: 16),
                         _tabs(),
                         const SizedBox(height: 16),
-                            _redeemPointsCard(provider),
+                            // _redeemPointsCard(provider),
                         const SizedBox(height: 20),
                         const CustomText(
                           text: "Recent Transactions",
@@ -314,16 +314,17 @@ void _showAboutWalletDialog() {
         //   ),
         // ),
         // const SizedBox(width: 10),
-        Expanded(
-          child: CustomButton(
-            title: "Redeem Points",
-            backgroundColor: selectedTab == 1
-                ? drawerColor
-                : Colors.grey.shade300,
-            textColor: selectedTab == 1 ? Colors.white : Colors.black54,
-            onTap: () => setState(() => selectedTab = 1),
-          ),
-        ),
+        // Expanded(
+        //   child: CustomButton(
+        //     title: " Points",
+        //     backgroundColor: selectedTab == 1
+        //         ? drawerColor
+        //         : Colors.grey.shade300,
+        //     textColor: selectedTab == 1 ? Colors.white : Colors.black54,
+        //     onTap: () => setState(() => selectedTab = 1),
+        //   ),
+        // ),
+     
       ],
     );
   }

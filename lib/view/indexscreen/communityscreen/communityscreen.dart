@@ -3,6 +3,7 @@ import 'package:firstedu/res/constants/colors/appcolors.dart';
 import 'package:firstedu/view/indexscreen/communityscreen/newpostscreen.dart';
 import 'package:firstedu/data/models/api_models/community_models/communitypostmodels.dart'
     as api;
+import 'package:firstedu/view/indexscreen/communityscreen/reportbottomsheet.dart';
 import 'package:firstedu/view_models/authprovider/userSessionProvider.dart';
 import 'package:firstedu/view_models/communityprvider/commentprovider.dart';
 import 'package:firstedu/view_models/communityprvider/communityprovider.dart';
@@ -138,7 +139,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
         child: _CommentsSheet(post: p, accentColor: _tc(p.topic)),
       ),
     );
+    
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -520,32 +523,40 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.edit_outlined, color: _navy),
-                title: Text(
-                  "Edit Post",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: _txtPri,
-                  ),
-                ),
-                onTap: () => Navigator.of(sheetCtx).pop('edit'),
-              ),
-              const Divider(height: 1, indent: 16, endIndent: 16),
-              ListTile(
-                leading: const Icon(Icons.delete_outline_rounded, color: _red),
-                title: Text(
-                  "Delete Post",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: _red,
-                  ),
-                ),
-                onTap: () => Navigator.of(sheetCtx).pop('delete'),
-              ),
-              const SizedBox(height: 8),
+               if (_isOwner) ...[
+    ListTile(
+      leading: const Icon(Icons.edit_outlined),
+      title: const Text("Edit Post"),
+      onTap: () => Navigator.pop(sheetCtx, 'edit'),
+    ),
+
+    ListTile(
+      leading: const Icon(
+        Icons.delete_outline,
+        color: Colors.red,
+      ),
+      title: const Text("Delete Post"),
+      onTap: () => Navigator.pop(sheetCtx, 'delete'),
+    ),
+  ],
+
+  ListTile(
+    leading: const Icon(
+      Icons.flag_outlined,
+      color: Colors.orange,
+    ),
+    title: const Text("Report Post"),
+    onTap: () {
+      Navigator.pop(sheetCtx);
+
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        builder: (_) => const ReportPostBottomSheet(),
+      );
+    },
+  ),
             ],
           ),
         ),
@@ -697,18 +708,17 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
                   ),
 
                   // ── FIX (ownership): three-dot ONLY shown to the post's author ──
-                  if (_isOwner)
-                    GestureDetector(
-                      onTap: _openPostMenu,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Icon(
-                          Icons.more_horiz_rounded,
-                          color: _txtSec,
-                          size: 22,
-                        ),
-                      ),
-                    ),
+                 GestureDetector(
+  onTap: _openPostMenu,
+  child: Padding(
+    padding: const EdgeInsets.all(8),
+    child: Icon(
+      Icons.more_horiz_rounded,
+      color: _txtSec,
+      size: 22,
+    ),
+  ),
+),
                 ],
               ),
             ),

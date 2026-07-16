@@ -662,7 +662,7 @@ class _LevelCard extends StatelessWidget {
                   color: Colors.white,
                 ),
                 label: const Text(
-                  'Buy to Unlock',
+                  'Test to Unlock',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,

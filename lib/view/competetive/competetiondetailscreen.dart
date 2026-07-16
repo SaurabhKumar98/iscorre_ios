@@ -320,7 +320,7 @@ class _CompetitionDetailScreenState extends State<CompetitionDetailScreen> {
                                     ] else if (data.node?.upgradable ==
                                         true) ...[
                                       Text(
-                                        'Upgrade: ₹${data.node?.upgradeCost}',
+                                        'Access Bundle: ₹${data.node?.upgradeCost}',
                                         style: GoogleFonts.poppins(
                                           fontSize: 13,
                                           color: Colors.orange.shade300,
@@ -1135,7 +1135,7 @@ class _SubCategoryCard extends StatelessWidget {
                       children: [
                         if (!hasAccess && !isFree && !isUpgradable)
                           _actionBtn(
-                            'Buy',
+                            ' Take Test',
                             accentColor,
                             Icons.shopping_cart_rounded,
                             () {
@@ -1144,7 +1144,7 @@ class _SubCategoryCard extends StatelessWidget {
                           ),
                         if (isUpgradable)
                           _actionBtn(
-                            'Upgrade',
+                            'Access Bundle',
                             const Color(0xFFEA580C),
                             Icons.upgrade_rounded,
                             () {
@@ -1219,7 +1219,7 @@ class _SubCategoryCard extends StatelessWidget {
           ),
           if (isUpgradable && upgradeCost > 0)
             Text(
-              'Upgrade: ₹$upgradeCost',
+              'Access Bundle: ₹$upgradeCost',
               style: GoogleFonts.poppins(
                 fontSize: 11,
                 color: Colors.orange.shade700,
@@ -1234,7 +1234,7 @@ class _SubCategoryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Upgrade: ₹$upgradeCost',
+            'Access Bundle: ₹$upgradeCost',
             style: GoogleFonts.poppins(
               fontSize: 15,
               fontWeight: FontWeight.w700,

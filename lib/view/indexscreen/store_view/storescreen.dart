@@ -746,7 +746,7 @@ Widget _productCard(Item item, StoreProvider provider) {
                 SizedBox(width: 10.w),
                 Expanded(
                   child: CustomButton(
-                    title: isFree ? 'Get Free' : 'Buy Now',
+                    title: isFree ? 'Get Free' : 'Take Test',
                     onTap: () => showStorePaymentSheet(context, item: item),
                     height: 42.h,
                     backgroundColor: isFree ? successColor : accentOrange,
@@ -760,7 +760,7 @@ Widget _productCard(Item item, StoreProvider provider) {
             )
           else
             CustomButton(
-              title: isFree ? 'Get Free' : 'Buy Now — ₹$finalPrice',
+              title: isFree ? 'Get Free' : 'Take Test — ₹$finalPrice',
               onTap: () => showStorePaymentSheet(context, item: item),
               height: 44.h,
               backgroundColor: isFree ? successColor : drawerColor,

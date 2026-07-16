@@ -707,20 +707,20 @@ return DraggableScrollableSheet(
           weight: FontWeight.w700,
           color: const Color(0xFF1A1A2E),
         ),
-        SizedBox(height: 10.h),
+        // SizedBox(height: 10.h),
 
-        _methodTile(
-          value: 'points',
-          icon: Icons.workspace_premium,
-          iconColor: Colors.amber.shade700,
-          title: 'Redeem Points',
-          subtitle:
-              'Use ${item.pointsRequired} pts  •  You have ${prov.totalPoints} pts',
-          enabled: prov.totalPoints >= item.pointsRequired,
-          disabledReason: prov.totalPoints < item.pointsRequired
-              ? 'Insufficient points'
-              : null,
-        ),
+        // _methodTile(
+        //   value: 'points',
+        //   icon: Icons.workspace_premium,
+        //   iconColor: Colors.amber.shade700,
+        //   title: 'Redeem Points',
+        //   subtitle:
+        //       'Use ${item.pointsRequired} pts  •  You have ${prov.totalPoints} pts',
+        //   enabled: prov.totalPoints >= item.pointsRequired,
+        //   disabledReason: prov.totalPoints < item.pointsRequired
+        //       ? 'Insufficient points'
+        //       : null,
+        // ),
 
         SizedBox(height: 8.h),
 
@@ -752,14 +752,14 @@ enabled: prov.monetaryBalance >= (coupon?.finalAmount ?? item.effectivePrice),
 
           SizedBox(height: 20.h),
 
-          CustomText(
-            text: 'Have a Coupon?',
-            size: 14,
-            weight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
-          ),
+          // CustomText(
+          //   text: 'Have a Coupon?',
+          //   size: 14,
+          //   weight: FontWeight.w700,
+          //   color: const Color(0xFF1A1A2E),
+          // ),
           SizedBox(height: 10.h),
-          _couponRow(prov),
+          // _couponRow(prov),
 
           if (coupon != null) ...[
             SizedBox(height: 10.h),
