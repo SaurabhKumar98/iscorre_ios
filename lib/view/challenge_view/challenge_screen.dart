@@ -2192,7 +2192,7 @@ void _showCreateRoomSheet(
                       ),
                       subtitle: Text(
                         '${c.durationMinutes ?? 0} min  ·  '
-                        '${(c.price ?? 0) == 0 ? 'Free' : '₹${c.price}'}',
+                        '${(c.price ?? 0) == 0 ? 'Free' : 's${c.price}'}',
                         style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                       ),
                       trailing: isSel

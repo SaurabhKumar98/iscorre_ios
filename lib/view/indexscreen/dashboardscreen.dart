@@ -254,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
 
                           Text(
-                            '₹${balance.toStringAsFixed(0)}',
+                            '${balance.toStringAsFixed(0)}',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,

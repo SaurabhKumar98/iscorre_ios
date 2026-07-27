@@ -829,7 +829,7 @@ class _SectorCard extends StatelessWidget {
                     if (discountAmount > 0)
                       _infoChip(
                         Icons.discount_rounded,
-                        '₹$discountAmount off',
+                        '$discountAmount off',
                         Colors.green.shade700,
                         Colors.green.shade50,
                       ),
@@ -843,7 +843,7 @@ class _SectorCard extends StatelessWidget {
                     if (paidSoFar > 0)
                       _infoChip(
                         Icons.payment_rounded,
-                        'Paid ₹$paidSoFar',
+                        'Paid $paidSoFar',
                         Colors.indigo.shade600,
                         Colors.indigo.shade50,
                       ),
@@ -863,7 +863,7 @@ class _SectorCard extends StatelessWidget {
                           children: [
                             if (hasAccess) ...[
                               Text(
-                                '₹$paidSoFar paid',
+                                '$paidSoFar paid',
                                 style: GoogleFonts.poppins(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
@@ -872,7 +872,7 @@ class _SectorCard extends StatelessWidget {
                               ),
                               if (upgradeCost > 0)
                                 Text(
-                                  'Access Bundle: ₹$upgradeCost',
+                                  'Access Bundle: $upgradeCost',
                                   style: GoogleFonts.poppins(
                                     fontSize: 11,
                                     color: Colors.orange.shade700,
@@ -881,7 +881,7 @@ class _SectorCard extends StatelessWidget {
                                 ),
                             ] else if (upgradable) ...[
                               Text(
-                                'Access Bundle: ₹$upgradeCost',
+                                'Access Bundle: $upgradeCost',
                                 style: GoogleFonts.poppins(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w700,
@@ -889,7 +889,7 @@ class _SectorCard extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                'Paid: ₹$paidSoFar',
+                                'Paid: $paidSoFar',
                                 style: GoogleFonts.poppins(
                                     fontSize: 11, color: Colors.grey[500]),
                               ),
@@ -897,7 +897,7 @@ class _SectorCard extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    '₹$effectivePrice',
+                                    '$effectivePrice',
                                     style: GoogleFonts.poppins(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w800,
@@ -907,7 +907,7 @@ class _SectorCard extends StatelessWidget {
                                   if (originalPrice > effectivePrice) ...[
                                     const SizedBox(width: 6),
                                     Text(
-                                      '₹$originalPrice',
+                                      '$originalPrice',
                                       style: GoogleFonts.poppins(
                                         fontSize: 13,
                                         decoration:
@@ -920,7 +920,7 @@ class _SectorCard extends StatelessWidget {
                               ),
                               if (discountAmount > 0)
                                 Text(
-                                  'You save ₹$discountAmount',
+                                  'You save $discountAmount',
                                   style: GoogleFonts.poppins(
                                     fontSize: 10,
                                     color: Colors.green.shade600,

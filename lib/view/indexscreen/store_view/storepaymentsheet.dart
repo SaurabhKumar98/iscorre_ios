@@ -29,23 +29,23 @@ class _StorePaymentSheet extends StatefulWidget {
 }
 
 class _StorePaymentSheetState extends State<_StorePaymentSheet> {
- // State variables — replace existing ones
-StorePaymentMethod? _selected;
-final TextEditingController _couponController = TextEditingController();
-bool _couponApplied = false;
-bool _isApplyingCoupon = false;
-int _discountAmount = 0;       // e.g. 50
-int _payableAmount = 0;        // e.g. 450 (after discount)
-String? _couponError;
+  // State variables — replace existing ones
+  StorePaymentMethod? _selected;
+  final TextEditingController _couponController = TextEditingController();
+  bool _couponApplied = false;
+  bool _isApplyingCoupon = false;
+  int _discountAmount = 0; // e.g. 50
+  int _payableAmount = 0; // e.g. 450 (after discount)
+  String? _couponError;
 
-// Updated getter — reflects post-coupon price
-double get _basePrice =>
-    widget.item.effectivePrice ?? widget.item.price?.toDouble() ?? 0.0;
+  // Updated getter — reflects post-coupon price
+  double get _basePrice =>
+      widget.item.effectivePrice ?? widget.item.price?.toDouble() ?? 0.0;
 
-double get _finalPrice =>
-    _couponApplied ? _payableAmount.toDouble() : _basePrice;
+  double get _finalPrice =>
+      _couponApplied ? _payableAmount.toDouble() : _basePrice;
 
-bool get _isFree => _finalPrice == 0;
+  bool get _isFree => _finalPrice == 0;
 
   @override
   void initState() {
@@ -183,184 +183,267 @@ bool get _isFree => _finalPrice == 0;
   }
 
   // ─────────────────────────────────────────────────────────────────
+  //  SHARED COIN-AMOUNT HELPER
+  //  Renders either 'FREE' or a monetization_on coin icon + the number,
+  //  so every price everywhere in this sheet uses the coin symbol
+  //  instead of the ₹ text glyph.
+  // ─────────────────────────────────────────────────────────────────
+
+  Widget _coinAmount(
+    num amount, {
+    required Color color,
+    double fontSize = 16,
+    FontWeight weight = FontWeight.w800,
+    bool showFreeLabel = true,
+  }) {
+    if (amount <= 0 && showFreeLabel) {
+      return Text(
+        'FREE',
+        style: TextStyle(
+          fontSize: fontSize.sp,
+          fontWeight: weight,
+          color: successColor,
+        ),
+      );
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.monetization_on_rounded,
+          size: (fontSize + 2).sp,
+          color: color,
+        ),
+        SizedBox(width: 4.w),
+        Text(
+          '${amount.toInt()}',
+          style: TextStyle(
+            fontSize: fontSize.sp,
+            fontWeight: weight,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────
   //  PRICE SUMMARY CARD
   // ─────────────────────────────────────────────────────────────────
 
-Widget _priceSummaryCard() {
-  final int originalPrice = widget.item.price ?? 0;
-  final int effectivePrice = (widget.item.effectivePrice ?? widget.item.price ?? 0).toInt();
-  final bool hasOfferDiscount = effectivePrice < originalPrice;
-  final int offerDiscountAmount = originalPrice - effectivePrice;
+  Widget _priceSummaryCard() {
+    final int originalPrice = widget.item.price ?? 0;
+    final int effectivePrice =
+        (widget.item.effectivePrice ?? widget.item.price ?? 0).toInt();
+    final bool hasOfferDiscount = effectivePrice < originalPrice;
+    final int offerDiscountAmount = originalPrice - effectivePrice;
 
-  return Container(
-    width: double.infinity,
-    padding: EdgeInsets.all(14.w),
-    decoration: BoxDecoration(
-      color: const Color(0xFFF6F7FB),
-      borderRadius: BorderRadius.circular(14.r),
-    ),
-    child: Column(
-      children: [
-        // ── Item Price row (strikethrough if offer exists) ──
-        Row(
-          children: [
-            Text(
-              'Item Price',
-              style: TextStyle(fontSize: 13.sp, color: Colors.black54),
-            ),
-            const Spacer(),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (hasOfferDiscount)
-                  Text(
-                    '₹$originalPrice',
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: Colors.grey,
-                      decoration: TextDecoration.lineThrough,
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(14.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF6F7FB),
+        borderRadius: BorderRadius.circular(14.r),
+      ),
+      child: Column(
+        children: [
+          // ── Item Price row (strikethrough if offer exists) ──
+          Row(
+            children: [
+              Text(
+                'Item Price',
+                style: TextStyle(fontSize: 13.sp, color: Colors.black54),
+              ),
+              const Spacer(),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (hasOfferDiscount)
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.monetization_on_rounded,
+                          size: 14.sp,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(width: 2.w),
+                        Text(
+                          '$originalPrice',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: Colors.grey,
+                            decoration: TextDecoration.lineThrough,
+                          ),
+                        ),
+                      ],
                     ),
+                  _coinAmount(
+                    effectivePrice,
+                    color: drawerColor,
+                    fontSize: 16,
                   ),
+                ],
+              ),
+            ],
+          ),
+
+          // ── Offer discount row ──
+          if (hasOfferDiscount && !_couponApplied) ...[
+            SizedBox(height: 8.h),
+            Divider(color: Colors.grey.shade200, height: 1),
+            SizedBox(height: 8.h),
+            Row(
+              children: [
                 Text(
-                  effectivePrice == 0 ? 'FREE' : '₹$effectivePrice',
+                  'Offer Discount',
+                  style: TextStyle(fontSize: 13.sp, color: Colors.black54),
+                ),
+                const Spacer(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '-',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: successColor,
+                      ),
+                    ),
+                    SizedBox(width: 2.w),
+                    Icon(
+                      Icons.monetization_on_rounded,
+                      size: 16.sp,
+                      color: successColor,
+                    ),
+                    SizedBox(width: 2.w),
+                    Text(
+                      '$offerDiscountAmount',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: successColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            Divider(color: Colors.grey.shade200, height: 1),
+            SizedBox(height: 8.h),
+            Row(
+              children: [
+                Text(
+                  'Total to Pay',
                   style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w800,
-                    color: effectivePrice == 0 ? successColor : drawerColor,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1A1D26),
                   ),
+                ),
+                const Spacer(),
+                _coinAmount(effectivePrice, color: drawerColor, fontSize: 16),
+              ],
+            ),
+          ],
+
+          // ── Coupon discount row ──
+          if (_couponApplied && _discountAmount > 0) ...[
+            SizedBox(height: 8.h),
+            Divider(color: Colors.grey.shade200, height: 1),
+            SizedBox(height: 8.h),
+            Row(
+              children: [
+                Text(
+                  'Coupon Discount',
+                  style: TextStyle(fontSize: 13.sp, color: Colors.black54),
+                ),
+                const Spacer(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '-',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: successColor,
+                      ),
+                    ),
+                    SizedBox(width: 2.w),
+                    Icon(
+                      Icons.monetization_on_rounded,
+                      size: 16.sp,
+                      color: successColor,
+                    ),
+                    SizedBox(width: 2.w),
+                    Text(
+                      '$_discountAmount',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: successColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 8.h),
+            Divider(color: Colors.grey.shade200, height: 1),
+            SizedBox(height: 8.h),
+            Row(
+              children: [
+                Text(
+                  'Total to Pay',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1A1D26),
+                  ),
+                ),
+                const Spacer(),
+                _coinAmount(
+                  _finalPrice.toInt(),
+                  color: drawerColor,
+                  fontSize: 16,
                 ),
               ],
             ),
           ],
-        ),
 
-        // ── Offer discount row ──
-        if (hasOfferDiscount && !_couponApplied) ...[
-          SizedBox(height: 8.h),
-          Divider(color: Colors.grey.shade200, height: 1),
-          SizedBox(height: 8.h),
-          Row(
-            children: [
-              Text(
-                'Offer Discount',
-                style: TextStyle(fontSize: 13.sp, color: Colors.black54),
-              ),
-              const Spacer(),
-              Text(
-                '- ₹$offerDiscountAmount',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: successColor,
+          // ── No discount at all ──
+          if (!hasOfferDiscount && !_couponApplied && !_isFree) ...[
+            SizedBox(height: 8.h),
+            Divider(color: Colors.grey.shade200, height: 1),
+            SizedBox(height: 8.h),
+            Row(
+              children: [
+                Text(
+                  'Total to Pay',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFF1A1D26),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Divider(color: Colors.grey.shade200, height: 1),
-          SizedBox(height: 8.h),
-          Row(
-            children: [
-              Text(
-                'Total to Pay',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1D26),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                effectivePrice == 0 ? 'FREE' : '₹$effectivePrice',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w800,
-                  color: effectivePrice == 0 ? successColor : drawerColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-
-        // ── Coupon discount row ──
-        if (_couponApplied && _discountAmount > 0) ...[
-          SizedBox(height: 8.h),
-          Divider(color: Colors.grey.shade200, height: 1),
-          SizedBox(height: 8.h),
-          Row(
-            children: [
-              Text(
-                'Coupon Discount',
-                style: TextStyle(fontSize: 13.sp, color: Colors.black54),
-              ),
-              const Spacer(),
-              Text(
-                '- ₹$_discountAmount',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: successColor,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 8.h),
-          Divider(color: Colors.grey.shade200, height: 1),
-          SizedBox(height: 8.h),
-          Row(
-            children: [
-              Text(
-                'Total to Pay',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1D26),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                _finalPrice == 0 ? 'FREE' : '₹${_finalPrice.toInt()}',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w800,
-                  color: _finalPrice == 0 ? successColor : drawerColor,
-                ),
-              ),
-            ],
-          ),
-        ],
-
-        // ── No discount at all ──
-        if (!hasOfferDiscount && !_couponApplied && !_isFree) ...[
-          SizedBox(height: 8.h),
-          Divider(color: Colors.grey.shade200, height: 1),
-          SizedBox(height: 8.h),
-          Row(
-            children: [
-              Text(
-                'Total to Pay',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1D26),
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '₹$originalPrice',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w800,
+                const Spacer(),
+                _coinAmount(
+                  originalPrice,
                   color: drawerColor,
+                  fontSize: 16,
+                  showFreeLabel: false,
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
+
   // ─────────────────────────────────────────────────────────────────
   //  REDEEM / COUPON SECTION
   // ─────────────────────────────────────────────────────────────────
@@ -498,10 +581,28 @@ Widget _priceSummaryCard() {
           SizedBox(height: 6.h),
           Row(
             children: [
-              Icon(Icons.celebration_rounded, size: 13.sp, color: successColor),
+              Icon(
+                Icons.celebration_rounded,
+                size: 13.sp,
+                color: successColor,
+              ),
               SizedBox(width: 4.w),
               Text(
-                'Coupon applied! You saved ₹$_discountAmount',
+                'Coupon applied! You saved ',
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: successColor,
+                ),
+              ),
+              Icon(
+                Icons.monetization_on_rounded,
+                size: 12.sp,
+                color: successColor,
+              ),
+              SizedBox(width: 2.w),
+              Text(
+                '$_discountAmount',
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
@@ -562,14 +663,7 @@ Widget _priceSummaryCard() {
                       color: canProceed ? Colors.white : Colors.black38,
                     ),
                     SizedBox(width: 8.w),
-                    Text(
-                      _confirmLabel(),
-                      style: TextStyle(
-                        fontSize: 15.sp,
-                        fontWeight: FontWeight.w700,
-                        color: canProceed ? Colors.white : Colors.black38,
-                      ),
-                    ),
+                    ..._confirmLabelWidgets(canProceed),
                   ],
                 ),
         ),
@@ -581,83 +675,106 @@ Widget _priceSummaryCard() {
   //  HELPERS
   // ─────────────────────────────────────────────────────────────────
 
- String _confirmLabel() {
-  if (_isFree) return 'Get for Free';
-  if (_selected == StorePaymentMethod.wallet) return 'Pay from Wallet';
-  if (_selected == StorePaymentMethod.razorpay) {
-    return 'Pay ₹${_finalPrice.toInt()}';   // ✅ shows discounted price
+  // Builds the confirm button's label as a list of inline widgets so
+  // the Razorpay amount can show the coin icon instead of '₹'.
+  List<Widget> _confirmLabelWidgets(bool canProceed) {
+    final Color textColor = canProceed ? Colors.white : Colors.black38;
+    final TextStyle style = TextStyle(
+      fontSize: 15.sp,
+      fontWeight: FontWeight.w700,
+      color: textColor,
+    );
+
+    if (_isFree) {
+      return [Text('Get for Free', style: style)];
+    }
+    if (_selected == StorePaymentMethod.wallet) {
+      return [Text('Pay from Wallet', style: style)];
+    }
+    if (_selected == StorePaymentMethod.razorpay) {
+      return [
+        Text('Pay ', style: style),
+        Icon(
+          Icons.monetization_on_rounded,
+          size: 16.sp,
+          color: textColor,
+        ),
+        SizedBox(width: 2.w),
+        Text('${_finalPrice.toInt()}', style: style),
+      ];
+    }
+    return [Text('Confirm', style: style)];
   }
-  return 'Confirm';
-}
-Future<void> _applyCoupon() async {
-  final code = _couponController.text.trim();
-  if (code.isEmpty) {
-    setState(() => _couponError = 'Please enter a coupon code');
-    return;
-  }
 
-  final provider = context.read<StoreProvider>();
+  Future<void> _applyCoupon() async {
+    final code = _couponController.text.trim();
+    if (code.isEmpty) {
+      setState(() => _couponError = 'Please enter a coupon code');
+      return;
+    }
 
-  setState(() {
-    _isApplyingCoupon = true;
-    _couponError = null;
-  });
+    final provider = context.read<StoreProvider>();
 
-  final rawType = widget.item.itemType ?? 'test';
-  final module = rawType[0].toUpperCase() + rawType.substring(1);
-
-  // ✅ Send effectivePrice (post-offer price) as the base amount, not original price
-  final int baseAmount = (widget.item.effectivePrice ?? widget.item.price ?? 0).toInt();
-
-  await provider.applyCoupon(
-    context,
-    code: code,
-    amount: baseAmount,   // ✅ was: widget.item.price ?? 0
-    module: module,
-  );
-
-  if (!mounted) return;
-
-  final coupon = provider.appliedCoupon;
-
-  if (coupon != null) {
     setState(() {
-      _couponApplied = true;
-      _discountAmount = (coupon.discount ?? 0).toInt();
-      _payableAmount = (coupon.discountedPrice ?? 0).toInt();
+      _isApplyingCoupon = true;
       _couponError = null;
+    });
 
-      if (_payableAmount <= 0) {
-        _selected = StorePaymentMethod.free;
+    final rawType = widget.item.itemType ?? 'test';
+    final module = rawType[0].toUpperCase() + rawType.substring(1);
+
+    // ✅ Send effectivePrice (post-offer price) as the base amount, not original price
+    final int baseAmount =
+        (widget.item.effectivePrice ?? widget.item.price ?? 0).toInt();
+
+    await provider.applyCoupon(
+      context,
+      code: code,
+      amount: baseAmount, // ✅ was: widget.item.price ?? 0
+      module: module,
+    );
+
+    if (!mounted) return;
+
+    final coupon = provider.appliedCoupon;
+
+    if (coupon != null) {
+      setState(() {
+        _couponApplied = true;
+        _discountAmount = (coupon.discount ?? 0).toInt();
+        _payableAmount = (coupon.discountedPrice ?? 0).toInt();
+        _couponError = null;
+
+        if (_payableAmount <= 0) {
+          _selected = StorePaymentMethod.free;
+        }
+      });
+    } else {
+      setState(() {
+        _couponError = provider.couponError ?? 'Invalid or expired coupon code';
+      });
+    }
+
+    setState(() => _isApplyingCoupon = false);
+  }
+
+  void _removeCoupon() {
+    final provider = context.read<StoreProvider>();
+
+    provider.clearCoupon(); // 🔥 important
+
+    setState(() {
+      _couponApplied = false;
+      _discountAmount = 0;
+      _couponError = null;
+      _couponController.clear();
+
+      if (_selected == StorePaymentMethod.free && !_isFree) {
+        _selected = null;
       }
     });
-  } else {
-    setState(() {
-      _couponError = provider.couponError ?? 'Invalid or expired coupon code';
-    });
   }
 
-  setState(() => _isApplyingCoupon = false);
-}
-
-void _removeCoupon() {
-  final provider = context.read<StoreProvider>();
-
-  provider.clearCoupon(); // 🔥 important
-
-  setState(() {
-    _couponApplied = false;
-    _discountAmount = 0;
-    _couponError = null;
-    _couponController.clear();
-
-    if (_selected == StorePaymentMethod.free && !_isFree) {
-      _selected = null;
-    }
-  });
-}
- 
- 
   Future<void> _handleConfirm(BuildContext context) async {
     if (_selected == null) return;
 
@@ -667,9 +784,7 @@ void _removeCoupon() {
     // ✅ Capture root context now — sheet context will be dead after pop
     final rootCtx = widget.rootContext;
 
-    final methodToSend = _finalPrice == 0
-        ? StorePaymentMethod.free
-        : _selected!;
+    final methodToSend = _finalPrice == 0 ? StorePaymentMethod.free : _selected!;
 
     final result = await provider.initiatePayment(
       context,
@@ -728,7 +843,7 @@ void _removeCoupon() {
             //     backgroundColor: Colors.red,
             //   ),
             // );
-            AppToast.error(context, message: res.message?? 'Payment failed');
+            AppToast.error(context, message: res.message ?? 'Payment failed');
           }
         },
       );

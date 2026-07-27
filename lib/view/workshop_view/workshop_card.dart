@@ -415,7 +415,7 @@ class _DetailView extends StatelessWidget {
                       _DetailPill(
                         icon: w.price == 0
                             ? Icons.card_giftcard
-                            : Icons.currency_rupee,
+                            : Icons.monetization_on_outlined,
                         label: w.price == 0 ? 'Free' : '${w.price}',
                         color: w.price == 0 ? successColor : accentOrange,
                       ),
@@ -674,7 +674,7 @@ class _ActionButton extends StatelessWidget {
     return CustomButton(
       title: workshop.price == 0
           ? 'Register for Free'
-          : 'Register  ·  ₹${workshop.price}',
+          : 'Register  ·  ${workshop.price}',
       icon: Icons.how_to_reg_rounded,
       backgroundColor: drawerColor,
       textColor: Colors.white,
@@ -738,7 +738,7 @@ class _PriceLabel extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       CustomText(
-        text: price == 0 ? 'Free' : '₹$price',
+        text: price == 0 ? 'Free' : '$price',
         size: 16,
         weight: FontWeight.w800,
         color: price == 0 ? successColor : drawerColor,

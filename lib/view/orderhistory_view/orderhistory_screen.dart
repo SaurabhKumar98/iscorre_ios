@@ -456,7 +456,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       label = '${order.amount ?? 0} pts';
       resolvedColor = color ?? Colors.deepPurple;
     } else {
-      label = '₹${order.amount ?? 0}';
+      label = '${order.amount ?? 0}';
       resolvedColor = color ?? Colors.black87;
     }
 

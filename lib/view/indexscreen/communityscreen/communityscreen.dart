@@ -1,5 +1,6 @@
 import 'package:firstedu/data/models/api_models/community_models/commentauthor.dart';
 import 'package:firstedu/res/constants/colors/appcolors.dart';
+import 'package:firstedu/view/indexscreen/communityscreen/blockusersheet.dart';
 import 'package:firstedu/view/indexscreen/communityscreen/newpostscreen.dart';
 import 'package:firstedu/data/models/api_models/community_models/communitypostmodels.dart'
     as api;
@@ -542,10 +543,10 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
 
   ListTile(
     leading: const Icon(
-      Icons.flag_outlined,
-      color: Colors.orange,
+      Icons.block,
+      color: Colors.red,
     ),
-    title: const Text("Report Post"),
+    title: const Text("Block Content"),
     onTap: () {
       Navigator.pop(sheetCtx);
 
@@ -553,11 +554,29 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
         context: context,
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
-        builder: (_) => const ReportPostBottomSheet(),
+        builder: (_) => const Blockusersheet(),
       );
     },
   ),
-            ],
+// SizedBox(height: 5,),
+//         ListTile(
+//     leading: const Icon(
+//       Icons.flag_outlined,
+//       color: Colors.orange,
+//     ),
+//     title: const Text("Report Post"),
+//     onTap: () {
+//       Navigator.pop(sheetCtx);
+
+//       showModalBottomSheet(
+//         context: context,
+//         backgroundColor: Colors.transparent,
+//         isScrollControlled: true,
+//         builder: (_) => const ReportPostBottomSheet(),
+//       );
+//     },
+//   ),
+        ],
           ),
         ),
       ),

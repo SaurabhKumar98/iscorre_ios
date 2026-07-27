@@ -760,7 +760,7 @@ Widget _productCard(Item item, StoreProvider provider) {
             )
           else
             CustomButton(
-              title: isFree ? 'Get Free' : 'Take Test — ₹$finalPrice',
+              title: isFree ? 'Get Free' : 'Take Test — $finalPrice',
               onTap: () => showStorePaymentSheet(context, item: item),
               height: 44.h,
               backgroundColor: isFree ? successColor : drawerColor,
@@ -775,7 +775,6 @@ Widget _productCard(Item item, StoreProvider provider) {
   );
 }
 
-// ✅ New helper — returns (label, color) for each itemType
 (String, Color) _typeInfo(String? itemType) {
   switch (itemType?.toLowerCase()) {
     case 'testbundle': return ('BUNDLE',    accentOrange);
@@ -789,7 +788,6 @@ Widget _productCard(Item item, StoreProvider provider) {
   }
 }
 
-// ✅ Updated _metaChip to accept optional color
 Widget _metaChip({required IconData icon, required String label, Color? color}) {
   final c = color ?? Colors.grey.shade500;
   return Container(
@@ -1293,7 +1291,7 @@ class _BundleDetailSheet extends StatelessWidget {
                         '${tests.length} Test${tests.length == 1 ? '' : 's'}',
                       ),
                       _headerChip(
-                        Icons.currency_rupee_rounded,
+                        Icons.monetization_on_outlined,
                         '\u20B9$finalPrice',
                       ),
                       _headerChip(

@@ -141,7 +141,7 @@ class MerchandiseCard extends StatelessWidget {
                             // ₹ Price
                             // Price row — REPLACE the existing price section with this:
 if (data.price > 0) ...[
-  Icon(Icons.currency_rupee, size: 13.sp, color: drawerColor),
+  Icon(Icons.monetization_on, size: 13.sp, color: drawerColor),
   if (data.hasDiscount) ...[
     // Strikethrough original price
     Text(

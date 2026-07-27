@@ -161,12 +161,12 @@ final drawerMenuItems = [
     icon: Icons.workspace_premium,
     route: AppRoutesName.certificate,
   ),
-  DrawerItemModel(
-    // index 18
-    title: "Wallet",
-    icon: Icons.account_balance_wallet_outlined,
-    route: "/wallet",
-  ),
+  // DrawerItemModel(
+  //   // index 18
+  //   title: "Wallet",
+  //   icon: Icons.account_balance_wallet_outlined,
+  //   route: "/wallet",
+  // ),
   DrawerItemModel(
     // index 19
     title: "Order History",

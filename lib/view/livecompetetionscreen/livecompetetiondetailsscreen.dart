@@ -384,7 +384,7 @@ class _OverviewCard extends StatelessWidget {
               icon: Icons.account_balance_wallet_outlined,
               label: 'Wallet Balance',
               value:
-                  '₹${competition.studentStatus!.walletBalance!.toStringAsFixed(0)}',
+                  '${competition.studentStatus!.walletBalance!.toStringAsFixed(0)}',
             ),
           if ((competition.description ?? '').isNotEmpty) ...[
             SizedBox(height: 8.h),
@@ -552,8 +552,8 @@ class _RoundCard extends StatelessWidget {
               label: 'Entry Fee',
               value: _isFree
                   ? 'FREE'
-                  : '₹${_effectivePrice.toStringAsFixed(0)}'
-                        '${_effectivePrice < _originalPrice ? ' (was ₹${_originalPrice.toStringAsFixed(0)})' : ''}',
+                  : '${_effectivePrice.toStringAsFixed(0)}'
+                        '${_effectivePrice < _originalPrice ? ' (was ${_originalPrice.toStringAsFixed(0)})' : ''}',
             ),
           if (roundData.registration != null)
             _InfoRow(
@@ -695,8 +695,8 @@ class _GrandFinaleCard extends StatelessWidget {
               label: 'Entry Fee',
               value: isFree
                   ? 'FREE'
-                  : '₹${effectivePrice.toStringAsFixed(0)}'
-                        '${effectivePrice < originalPrice ? ' (was ₹${originalPrice.toStringAsFixed(0)})' : ''}',
+                  : '${effectivePrice.toStringAsFixed(0)}'
+                        '${effectivePrice < originalPrice ? ' (was ${originalPrice.toStringAsFixed(0)})' : ''}',
             ),
           if (gf.paymentWindow != null)
             _InfoRow(
@@ -841,7 +841,7 @@ class _RoundCTA extends StatelessWidget {
         label: registerLabel ??
             (isFree
                 ? 'Register Free'
-                : 'Pay ₹${price.toStringAsFixed(0)} & Register'),
+                : 'Pay ${price.toStringAsFixed(0)} & Register'),
         icon: Icons.app_registration_rounded,
         color: accentColor,
         onTap: onRegister,
@@ -1380,7 +1380,7 @@ class _OfferBanner extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '${offer.discountType == 'PERCENTAGE' ? '${offer.discountValue?.toStringAsFixed(0)}%' : '₹${offer.discountValue?.toStringAsFixed(0)}'} off applied',
+                  '${offer.discountType == 'PERCENTAGE' ? '${offer.discountValue?.toStringAsFixed(0)}%' : '${offer.discountValue?.toStringAsFixed(0)}'} off applied',
                   style: GoogleFonts.poppins(
                       fontSize: 11.sp, color: Colors.green[600]),
                 ),

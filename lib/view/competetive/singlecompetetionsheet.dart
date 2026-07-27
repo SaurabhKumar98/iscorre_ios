@@ -1,10 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// single_competition_sheet.dart
-//
-// Bottom sheet shown when a student has access to a competition bundle.
-// Lists all unlocked tests and navigates to ExamScreen on tap.
-// Also handles the UPGRADE flow if new locked tests were added post-purchase.
-// ─────────────────────────────────────────────────────────────────────────────
 
 import 'package:firstedu/data/models/api_models/competetive/competetionsingleidby_models.dart';
 import 'package:firstedu/res/constants/colors/appcolors.dart';
@@ -390,7 +383,7 @@ class UpgradeCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Upgrade for ₹$upgradeCost to unlock',
+                  'Upgrade for $upgradeCost to unlock',
                   style: GoogleFonts.poppins(
                       fontSize: 11, color: Colors.orange[600]),
                 ),
