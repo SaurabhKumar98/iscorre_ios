@@ -254,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
 
                           Text(
-                            '${balance.toStringAsFixed(0)}',
+                            '₹${balance.toStringAsFixed(0)}',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
@@ -1157,7 +1157,7 @@ class _TimeByActivityCardState extends State<_TimeByActivityCard> {
                   crossAxisCount: 2, // 👈 2 items per row
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
-                  childAspectRatio: 3.5, // 👈 adjust UI
+                  childAspectRatio: 3.5, 
                 ),
                 itemBuilder: (context, index) {
                   final s = slices[index];

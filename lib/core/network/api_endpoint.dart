@@ -1,6 +1,6 @@
 class ApiEndpoint {
   static const String appBaseUrl = "https://api.iscorre.com/user";
-  // static const String appBaseUrl = "http://192.168.88.31:8000/user";
+  // static const String appBaseUrl = "http://192.168.88.29:8000/user";
 
   static const String socketurl = "https://api.iscorre.com/support";
   static const String websocket = "https://api.iscorre.com";

@@ -247,7 +247,7 @@ class _ChallengePaymentSheetState extends State<_ChallengePaymentSheet> {
               ),
               const Spacer(),
               Text(
-                _basePrice == 0 ? 'FREE' : '₹$_basePrice',
+                _basePrice == 0 ? 'FREE' : '$_basePrice',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
@@ -270,7 +270,7 @@ class _ChallengePaymentSheetState extends State<_ChallengePaymentSheet> {
                 ),
                 const Spacer(),
                 Text(
-                  '- ₹$_discountAmount',
+                  '- $_discountAmount',
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w700,
@@ -294,7 +294,7 @@ class _ChallengePaymentSheetState extends State<_ChallengePaymentSheet> {
                 ),
                 const Spacer(),
                 Text(
-                  _finalPrice == 0 ? 'FREE' : '₹$_finalPrice',
+                  _finalPrice == 0 ? 'FREE' : '$_finalPrice',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w800,
@@ -319,7 +319,7 @@ class _ChallengePaymentSheetState extends State<_ChallengePaymentSheet> {
                 ),
                 const Spacer(),
                 Text(
-                  '₹$_basePrice',
+                  '$_basePrice',
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w800,
@@ -469,7 +469,7 @@ class _ChallengePaymentSheetState extends State<_ChallengePaymentSheet> {
                   size: 13.sp, color: successColor),
               SizedBox(width: 4.w),
               Text(
-                'Coupon applied! You saved ₹$_discountAmount',
+                'Coupon applied! You saved $_discountAmount',
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
@@ -549,7 +549,7 @@ class _ChallengePaymentSheetState extends State<_ChallengePaymentSheet> {
   String _confirmLabel() {
     if (_isFree) return 'Unlock for Free';
     if (_selected == StorePaymentMethod.wallet) return 'Pay from Wallet';
-    if (_selected == StorePaymentMethod.razorpay) return 'Pay ₹$_finalPrice';
+    if (_selected == StorePaymentMethod.razorpay) return 'Pay $_finalPrice';
     return 'Confirm';
   }
 

@@ -37,13 +37,17 @@ class CustomButton extends StatelessWidget {
     final Color txt =
         textColor ?? (primary ? Colors.white : drawerColor);
 
+    // Clamp so rotation / tablet aspect ratios can't blow this up
+    final double resolvedHeight = height ?? 44.h.clamp(40.0, 52.0);
+    final double iconSize = 18.sp.clamp(16.0, 20.0);
+
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(12.r),
         onTap: enabled ? onTap : null,
         child: Container(
-          height: height ?? 44.h,
+          height: resolvedHeight,
           width: width,
           padding: EdgeInsets.symmetric(horizontal: 12.w),
           decoration: BoxDecoration(
@@ -59,7 +63,7 @@ class CustomButton extends StatelessWidget {
             mainAxisSize: width != null ? MainAxisSize.min : MainAxisSize.max,
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 18.sp, color: txt),
+                Icon(icon, size: iconSize, color: txt),
                 SizedBox(width: 6.w),
               ],
               CustomText(

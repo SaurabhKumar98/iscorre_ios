@@ -533,7 +533,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
                         icon: Icon(
                           isFree ? Icons.download_rounded : Icons.shopping_bag,
                         ),
-                        label: Text(isFree ? 'Get Free' : 'Take Test'),
+                        label: Text(isFree ? 'Get Free' : 'Buy Now'),
                       ),
               ],
             ),

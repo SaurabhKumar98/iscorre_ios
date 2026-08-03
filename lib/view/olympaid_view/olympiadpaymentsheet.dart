@@ -550,16 +550,16 @@ class _OlympiadPaymentSheetState extends State<_OlympiadPaymentSheet> {
             selected: _selected == OlympiadPaymentMethod.wallet,
             onTap: () => setState(() => _selected = OlympiadPaymentMethod.wallet),
           ),
-          // SizedBox(height: 10.h),
-          // _MethodTile(
-          //   icon: Icons.credit_card_rounded,
-          //   title: 'Razorpay',
-          //   subtitle: 'Pay via UPI, card, netbanking & more',
-          //   color: Colors.blue.shade700,
-          //   selected: _selected == OlympiadPaymentMethod.razorpay,
-          //   onTap: () =>
-          //       setState(() => _selected = OlympiadPaymentMethod.razorpay),
-          // ),
+          SizedBox(height: 10.h),
+          _MethodTile(
+            icon: Icons.credit_card_rounded,
+            title: 'Razorpay',
+            subtitle: 'Pay via UPI, card, netbanking & more',
+            color: Colors.blue.shade700,
+            selected: _selected == OlympiadPaymentMethod.razorpay,
+            onTap: () =>
+                setState(() => _selected = OlympiadPaymentMethod.razorpay),
+          ),
         ],
       );
 

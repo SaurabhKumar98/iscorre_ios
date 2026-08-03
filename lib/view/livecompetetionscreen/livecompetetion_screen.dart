@@ -408,7 +408,7 @@ class _CompetitionCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${_effectivePrice.toStringAsFixed(0)}',
+                          '₹${_effectivePrice.toStringAsFixed(0)}',
                           style: GoogleFonts.poppins(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w800,
@@ -417,7 +417,7 @@ class _CompetitionCard extends StatelessWidget {
                         ),
                         if (_effectivePrice < _originalPrice)
                           Text(
-                            '${_originalPrice.toStringAsFixed(0)}',
+                            '₹${_originalPrice.toStringAsFixed(0)}',
                             style: GoogleFonts.poppins(
                               fontSize: 11.sp,
                               color: Colors.grey,

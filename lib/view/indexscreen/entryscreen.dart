@@ -34,21 +34,20 @@ class _EntryScreenState extends State<EntryScreen> {
     '/profile': 4,
   };
 
- @override
-void initState() {
-  super.initState();
-  _currentIndex = widget.initialIndex;
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
 
-  _pages = [
-    DashboardScreen(onMenuTap: () => scaffoldKey.currentState?.openDrawer()),
-    const StoreScreen(),
-    ExamHallScreen(
-      onBrowseStore: () => _switchTab(1), // ✅ Store tab index
-    ),
-    const CommunityScreen(),
-    const ProfileScreen(),
-  ];
-}
+    _pages = [
+      DashboardScreen(onMenuTap: () => scaffoldKey.currentState?.openDrawer()),
+      const StoreScreen(),
+      const ExamHallScreen(),
+      const CommunityScreen(),
+      const ProfileScreen(),
+    ];
+  }
+
   /// Called by AppDrawer to switch bottom bar tabs
   void _switchTab(int index) {
     setState(() => _currentIndex = index);
@@ -114,7 +113,7 @@ void initState() {
 
   Widget _floatingBottomBar() {
     return Container(
-      height: 68.h,
+      height: 72.h,
       padding: EdgeInsets.symmetric(horizontal: 6.w),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -146,22 +145,23 @@ void initState() {
       ),
     );
   }
+Widget _navItem(int visualIndex) {
+  final pageIndex = _navIndexes[visualIndex];
+  final isActive = _currentIndex == pageIndex;
 
-  Widget _navItem(int visualIndex) {
-    final pageIndex = _navIndexes[visualIndex];
-    final isActive = _currentIndex == pageIndex;
-
-    return GestureDetector(
-      onTap: () => setState(() => _currentIndex = pageIndex),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-        decoration: BoxDecoration(
-          color: isActive
-              ? accentOrange.withValues(alpha: 0.15)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(16.r),
-        ),
+  return GestureDetector(
+    onTap: () => setState(() => _currentIndex = pageIndex),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: isActive
+            ? accentOrange.withValues(alpha: 0.15)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(16.r),
+      ),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -184,35 +184,39 @@ void initState() {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+Widget _examFab() {
+  final isActive = _currentIndex == 2;
 
-  Widget _examFab() {
-    final isActive = _currentIndex == 2;
+  // Clamp so it can't blow up on tablets / rotation
+  final double fabSize = 64.w.clamp(56.0, 72.0);
+  final double iconSize = 28.sp.clamp(24.0, 32.0);
 
-    return GestureDetector(
-      onTap: () => setState(() => _currentIndex = 2),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        height: 64.w,
-        width: 64.w,
-        decoration: BoxDecoration(
-          color: isActive ? accentOrange : drawerColor,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 12.r,
-              offset: Offset(0, 6.h),
-            ),
-          ],
-        ),
-        child: Icon(
-          Icons.assignment_outlined,
-          size: 28.sp,
-          color: Colors.white,
-        ),
+  return GestureDetector(
+    onTap: () => setState(() => _currentIndex = 2),
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      height: fabSize,
+      width: fabSize,
+      decoration: BoxDecoration(
+        color: isActive ? accentOrange : drawerColor,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 12.r,
+            offset: Offset(0, 6.h),
+          ),
+        ],
       ),
-    );
-  }
+      child: Icon(
+        Icons.assignment_outlined,
+        size: iconSize,
+        color: Colors.white,
+      ),
+    ),
+  );
+}
 }

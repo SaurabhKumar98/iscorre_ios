@@ -36,19 +36,29 @@ class _StoreScreenState extends State<StoreScreen>
     // "Challenges",
   ];
 
-final List<String> _filterTypes = [
-  'all',            // ✅ was 'both'
-  'test',
-  'testBundle',
-  'olympiad',
-  'tournament',
-  'school',
-  'competitive',
-  'skill development',
-  'challenges',
-];
+  final List<String> _filterTypes = [
+    'all', // ✅ was 'both'
+    'test',
+    'testBundle',
+    'olympiad',
+    'tournament',
+    'school',
+    'competitive',
+    'skill development',
+    'challenges',
+  ];
 
   late AnimationController _animController;
+
+  // ── Fixed, orientation-independent row heights for the sticky filter bar.
+  // These are plain logical pixels (NOT .h from ScreenUtil) on purpose:
+  // ScreenUtil's `.h` scales against screen HEIGHT, so in landscape the
+  // available height shrinks a lot while text/icon minimum sizes don't
+  // shrink proportionally — that mismatch is exactly what causes the
+  // "filter is coming out of the box" overflow when you rotate.
+  static const double _kChipRowHeight = 40.0;
+  static const double _kRowGap = 8.0;
+  static const double _kBarVerticalPadding = 8.0;
 
   @override
   void initState() {
@@ -73,7 +83,7 @@ final List<String> _filterTypes = [
   // ✅ Fixed: fetchCategories called after type is already set in provider
   void _loadData() {
     final provider = context.read<StoreProvider>();
-   provider.fetchCategories(); 
+    provider.fetchCategories();
     provider.fetchItems(context);
     _animController.reset();
     _animController.forward();
@@ -86,6 +96,16 @@ final List<String> _filterTypes = [
     super.dispose();
   }
 
+  // Total height needed by the sticky filter bar: two chip rows + gaps +
+  // top/bottom padding. Using fixed pixel values (not .h) means this stays
+  // correct in both portrait and landscape — no more overflow on rotate.
+  double get _filterBarExtent =>
+      _kBarVerticalPadding +
+      _kChipRowHeight +
+      _kRowGap +
+      _kChipRowHeight +
+      _kBarVerticalPadding;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,11 +113,11 @@ final List<String> _filterTypes = [
       body: Consumer<StoreProvider>(
         builder: (_, provider, __) {
           return RefreshIndicator(
-              onRefresh: () async => _loadData(),
+            onRefresh: () async => _loadData(),
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics(),
-        ),
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               slivers: [
                 const CustomSliverAppBar(
                   title: "Resource Store",
@@ -105,35 +125,36 @@ final List<String> _filterTypes = [
                   pinned: false,
                   showBack: false,
                 ),
-            
+
                 SliverPersistentHeader(
                   pinned: true,
                   delegate: _StickyFilterDelegate(
+                    extent: _filterBarExtent,
                     child: _buildFilterBar(provider),
                   ),
                 ),
-            
+
                 SliverPadding(
                   padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 120.h),
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
                       if (provider.selectedCategory != null)
                         _buildActiveCategoryBadge(provider),
-            
+
                       if (!provider.isLoading && provider.items.isNotEmpty)
                         _buildStatsRow(provider),
-            
+
                       if (provider.isLoading)
                         ...List.generate(3, (_) => _shimmerCard()),
-            
+
                       if (!provider.isLoading && provider.items.isEmpty)
                         _emptyState(),
-            
+
                       if (!provider.isLoading && provider.items.isNotEmpty)
                         ...provider.items.asMap().entries.map(
                               (e) => _animatedCard(e.value, e.key, provider),
                             ),
-            
+
                       if (provider.isPaginationLoading)
                         Padding(
                           padding: EdgeInsets.symmetric(vertical: 20.h),
@@ -148,7 +169,7 @@ final List<String> _filterTypes = [
                             ),
                           ),
                         ),
-            
+
                       if (provider.hasMore && !provider.isPaginationLoading)
                         Padding(
                           padding: EdgeInsets.only(top: 4.h),
@@ -177,13 +198,20 @@ final List<String> _filterTypes = [
   Widget _buildFilterBar(StoreProvider provider) {
     return Container(
       color: const Color(0xFFF4F5F9),
-      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 8.h),
+      // Fixed vertical padding (not .h) — matches _kBarVerticalPadding used
+      // in _filterBarExtent so the two stay in sync in every orientation.
+      padding: EdgeInsets.fromLTRB(
+        16.w,
+        _kBarVerticalPadding,
+        16.w,
+        _kBarVerticalPadding,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           // Type chips row
           SizedBox(
-            height: 40.h,
+            height: _kChipRowHeight,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _filterLabels.length,
@@ -203,7 +231,7 @@ final List<String> _filterTypes = [
               },
             ),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: _kRowGap),
           // Category chips row
           _buildCategoryRow(provider),
         ],
@@ -218,7 +246,7 @@ final List<String> _filterTypes = [
   Widget _buildCategoryRow(StoreProvider provider) {
     if (provider.isCategoryLoading) {
       return SizedBox(
-        height: 40.h,
+        height: _kChipRowHeight,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           itemCount: 5,
@@ -240,7 +268,7 @@ final List<String> _filterTypes = [
     }
 
     return SizedBox(
-      height: 40.h,
+      height: _kChipRowHeight,
       child: provider.categories.isEmpty
           ? ListView(
               scrollDirection: Axis.horizontal,
@@ -492,325 +520,346 @@ final List<String> _filterTypes = [
   //  PRODUCT CARD
   // ─────────────────────────────────────────────────────────────────
 
-Widget _productCard(Item item, StoreProvider provider) {
-  final title = item.title ?? item.name ?? '';
-  final subtitle = item.description;
-  final isBundle = item.itemType == 'testBundle';
-  final isPurchased = item.purchased == true;
+  Widget _productCard(Item item, StoreProvider provider) {
+    final title = item.title ?? item.name ?? '';
+    final subtitle = item.description;
+    final isBundle = item.itemType == 'testBundle';
+    final isPurchased = item.purchased == true;
 
-  // ✅ Derive label + accent color from itemType
-  final typeInfo = _typeInfo(item.itemType);
-  final String typeLabel = typeInfo.$1;
-  final Color accentColor = typeInfo.$2;
+    // ✅ Derive label + accent color from itemType
+    final typeInfo = _typeInfo(item.itemType);
+    final String typeLabel = typeInfo.$1;
+    final Color accentColor = typeInfo.$2;
 
-  // Category name lookup (searches 2 levels deep)
-  String? categoryName;
-  if (item.category != null && item.category!.isNotEmpty) {
-    outer:
-    for (final root in provider.categories) {
-      if (root.id == item.category) { categoryName = root.name; break; }
-      for (final child in root.children) {
-        if (child.id == item.category) { categoryName = child.name; break outer; }
-        for (final grandchild in child.children) {
-          if (grandchild.id == item.category) { categoryName = grandchild.name; break outer; }
+    // Category name lookup (searches 2 levels deep)
+    String? categoryName;
+    if (item.category != null && item.category!.isNotEmpty) {
+      outer:
+      for (final root in provider.categories) {
+        if (root.id == item.category) {
+          categoryName = root.name;
+          break;
+        }
+        for (final child in root.children) {
+          if (child.id == item.category) {
+            categoryName = child.name;
+            break outer;
+          }
+          for (final grandchild in child.children) {
+            if (grandchild.id == item.category) {
+              categoryName = grandchild.name;
+              break outer;
+            }
+          }
         }
       }
     }
-  }
 
-  final int? totalDuration = isBundle && (item.tests?.isNotEmpty ?? false)
-      ? item.tests!.fold<int>(0, (sum, t) => sum + (t.durationMinutes ?? 0))
-      : item.durationMinutes;
+    final int? totalDuration = isBundle && (item.tests?.isNotEmpty ?? false)
+        ? item.tests!.fold<int>(0, (sum, t) => sum + (t.durationMinutes ?? 0))
+        : item.durationMinutes;
 
-  final originalPrice = item.price;
-  final finalPrice = item.effectivePrice ?? item.price;
-  final isFree = (finalPrice ?? 0) == 0;
-  final hasDiscount = (finalPrice ?? 0) < (originalPrice ?? 0);
-  final hasPoints = (item.rewardPoints ?? 0) > 0;
+    final originalPrice = item.price;
+    final finalPrice = item.effectivePrice ?? item.price;
+    final isFree = (finalPrice ?? 0) == 0;
+    final hasDiscount = (finalPrice ?? 0) < (originalPrice ?? 0);
+    final hasPoints = (item.rewardPoints ?? 0) > 0;
 
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16.r),
-      border: Border(left: BorderSide(color: accentColor, width: 4)),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black.withOpacity(0.05),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Padding(
-      padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 14.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row
-          Row(
-            children: [
-              Container(
-                width: 42.w,
-                height: 42.w,
-                decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Icon(
-                  isBundle
-                      ? Icons.layers_rounded
-                      : Icons.assignment_rounded,
-                  color: accentColor,
-                  size: 20.sp,
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border(left: BorderSide(color: accentColor, width: 4)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 14.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row
+            Row(
+              children: [
+                Container(
+                  width: 42.w,
+                  height: 42.w,
                   decoration: BoxDecoration(
-                    color: accentColor.withOpacity(0.08),
-                    borderRadius: BorderRadius.circular(6.r),
+                    color: accentColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12.r),
                   ),
-                  child: CustomText(
-                    text: typeLabel,   // ✅ dynamic label
-                    size: 10,
-                    weight: FontWeight.w700,
+                  child: Icon(
+                    isBundle ? Icons.layers_rounded : Icons.assignment_rounded,
                     color: accentColor,
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              // ✅ Price column
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (hasDiscount)
-                    Text(
-                      '₹$originalPrice',
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: Colors.grey,
-                        decoration: TextDecoration.lineThrough,
-                      ),
-                    ),
-                  Text(
-                    isPurchased
-                        ? 'Owned'
-                        : isFree
-                            ? 'FREE'
-                            : '₹$finalPrice',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w800,
-                      color: isPurchased
-                          ? successColor
-                          : isFree
-                              ? successColor
-                              : drawerColor,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          SizedBox(height: 12.h),
-
-          // Title
-          CustomText(
-            text: title,
-            size: 15,
-            weight: FontWeight.w700,
-            maxLines: 2,
-            height: 1.35,
-            color: Colors.black87,
-          ),
-
-          // Category path
-          if (item.categoryPath != null && item.categoryPath!.isNotEmpty) ...[
-            SizedBox(height: 5.h),
-            Row(
-              children: [
-                Icon(Icons.category_outlined, size: 11.sp, color: Colors.grey.shade400),
-                SizedBox(width: 4.w),
-                Expanded(
-                  child: CustomText(
-                    text: item.categoryPath!,
-                    size: 11,
-                    color: Colors.grey.shade500,
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          // Description
-          if (subtitle != null && subtitle.isNotEmpty) ...[
-            SizedBox(height: 5.h),
-            CustomText(
-              text: subtitle,
-              size: 12,
-              color: Colors.grey.shade500,
-              maxLines: 2,
-              height: 1.4,
-            ),
-          ],
-
-          SizedBox(height: 12.h),
-
-          // Meta chips
-          Wrap(
-            spacing: 6.w,
-            runSpacing: 6.h,
-            children: [
-              if (categoryName != null)
-                _metaChip(icon: Icons.category_outlined, label: categoryName),
-              if (totalDuration != null && totalDuration > 0)
-                _metaChip(
-                  icon: Icons.timer_outlined,
-                  label: _formatDuration(totalDuration),
-                ),
-              if (isBundle && (item.tests?.isNotEmpty ?? false))
-                _metaChip(
-                  icon: Icons.assignment_outlined,
-                  label: '${item.tests!.length} Tests',
-                ),
-              // ✅ Reward points chip
-              if (hasPoints)
-                _metaChip(
-                  icon: Icons.stars_rounded,
-                  label: '+${item.rewardPoints} pts',
-                  color: Colors.amber.shade700,
-                ),
-            ],
-          ),
-
-          SizedBox(height: 14.h),
-          Divider(color: Colors.grey.shade100, height: 1),
-          SizedBox(height: 12.h),
-
-          // ✅ Action buttons — purchased check
-          if (isPurchased)
-            // Already purchased — show owned button
-            Container(
-              width: double.infinity,
-              height: 44.h,
-              decoration: BoxDecoration(
-                color: successColor.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(color: successColor.withOpacity(0.3)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.check_circle_rounded, color: successColor, size: 18.sp),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'Purchased',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w700,
-                      color: successColor,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          else if (isBundle)
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showBundleDetail(context, item, provider),
-                    icon: Icon(Icons.layers_outlined, size: 14.sp, color: drawerColor),
-                    label: Text(
-                      'View Tests',
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
-                        color: drawerColor,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: drawerColor.withOpacity(0.4)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      minimumSize: Size(0, 42.h),
-                    ),
+                    size: 20.sp,
                   ),
                 ),
                 SizedBox(width: 10.w),
                 Expanded(
-                  child: CustomButton(
-                    title: isFree ? 'Get Free' : 'Take Test',
-                    onTap: () => showStorePaymentSheet(context, item: item),
-                    height: 42.h,
-                    backgroundColor: isFree ? successColor : accentOrange,
-                    textColor: Colors.white,
-                    icon: isFree
-                        ? Icons.download_done_rounded
-                        : Icons.shopping_cart_rounded,
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                    decoration: BoxDecoration(
+                      color: accentColor.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: CustomText(
+                      text: typeLabel, // ✅ dynamic label
+                      size: 10,
+                      weight: FontWeight.w700,
+                      color: accentColor,
+                    ),
                   ),
                 ),
+                SizedBox(width: 8.w),
+                // ✅ Price column
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (hasDiscount)
+                      Text(
+                        '₹$originalPrice',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey,
+                          decoration: TextDecoration.lineThrough,
+                        ),
+                      ),
+                    Text(
+                      isPurchased
+                          ? 'Owned'
+                          : isFree
+                              ? 'FREE'
+                              : '₹$finalPrice',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w800,
+                        color: isPurchased
+                            ? successColor
+                            : isFree
+                                ? successColor
+                                : drawerColor,
+                      ),
+                    ),
+                  ],
+                ),
               ],
-            )
-          else
-            CustomButton(
-              title: isFree ? 'Get Free' : 'Take Test — $finalPrice',
-              onTap: () => showStorePaymentSheet(context, item: item),
-              height: 44.h,
-              backgroundColor: isFree ? successColor : drawerColor,
-              textColor: Colors.white,
-              icon: isFree
-                  ? Icons.download_done_rounded
-                  : Icons.shopping_cart_rounded,
             ),
+
+            SizedBox(height: 12.h),
+
+            // Title
+            CustomText(
+              text: title,
+              size: 15,
+              weight: FontWeight.w700,
+              maxLines: 2,
+              height: 1.35,
+              color: Colors.black87,
+            ),
+
+            // Category path
+            if (item.categoryPath != null && item.categoryPath!.isNotEmpty) ...[
+              SizedBox(height: 5.h),
+              Row(
+                children: [
+                  Icon(Icons.category_outlined,
+                      size: 11.sp, color: Colors.grey.shade400),
+                  SizedBox(width: 4.w),
+                  Expanded(
+                    child: CustomText(
+                      text: item.categoryPath!,
+                      size: 11,
+                      color: Colors.grey.shade500,
+                      maxLines: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+
+            // Description
+            if (subtitle != null && subtitle.isNotEmpty) ...[
+              SizedBox(height: 5.h),
+              CustomText(
+                text: subtitle,
+                size: 12,
+                color: Colors.grey.shade500,
+                maxLines: 2,
+                height: 1.4,
+              ),
+            ],
+
+            SizedBox(height: 12.h),
+
+            // Meta chips
+            Wrap(
+              spacing: 6.w,
+              runSpacing: 6.h,
+              children: [
+                if (categoryName != null)
+                  _metaChip(icon: Icons.category_outlined, label: categoryName),
+                if (totalDuration != null && totalDuration > 0)
+                  _metaChip(
+                    icon: Icons.timer_outlined,
+                    label: _formatDuration(totalDuration),
+                  ),
+                if (isBundle && (item.tests?.isNotEmpty ?? false))
+                  _metaChip(
+                    icon: Icons.assignment_outlined,
+                    label: '${item.tests!.length} Tests',
+                  ),
+                // ✅ Reward points chip
+                if (hasPoints)
+                  _metaChip(
+                    icon: Icons.stars_rounded,
+                    label: '+${item.rewardPoints} pts',
+                    color: Colors.amber.shade700,
+                  ),
+              ],
+            ),
+
+            SizedBox(height: 14.h),
+            Divider(color: Colors.grey.shade100, height: 1),
+            SizedBox(height: 12.h),
+
+            // ✅ Action buttons — purchased check
+            if (isPurchased)
+              // Already purchased — show owned button
+              Container(
+                width: double.infinity,
+                height: 44.h,
+                decoration: BoxDecoration(
+                  color: successColor.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: successColor.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle_rounded,
+                        color: successColor, size: 18.sp),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'Purchased',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w700,
+                        color: successColor,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (isBundle)
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () =>
+                          _showBundleDetail(context, item, provider),
+                      icon: Icon(Icons.layers_outlined,
+                          size: 14.sp, color: drawerColor),
+                      label: Text(
+                        'View Tests',
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          color: drawerColor,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: drawerColor.withOpacity(0.4)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                        minimumSize: Size(0, 42.h),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: CustomButton(
+                      title: isFree ? 'Get Free' : 'Buy Now',
+                      onTap: () => showStorePaymentSheet(context, item: item),
+                      height: 42.h,
+                      backgroundColor: isFree ? successColor : accentOrange,
+                      textColor: Colors.white,
+                      icon: isFree
+                          ? Icons.download_done_rounded
+                          : Icons.shopping_cart_rounded,
+                    ),
+                  ),
+                ],
+              )
+            else
+              CustomButton(
+                title: isFree ? 'Get Free' : 'Buy Now — ₹$finalPrice',
+                onTap: () => showStorePaymentSheet(context, item: item),
+                height: 44.h,
+                backgroundColor: isFree ? successColor : drawerColor,
+                textColor: Colors.white,
+                icon: isFree
+                    ? Icons.download_done_rounded
+                    : Icons.shopping_cart_rounded,
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ✅ New helper — returns (label, color) for each itemType
+  (String, Color) _typeInfo(String? itemType) {
+    switch (itemType?.toLowerCase()) {
+      case 'testbundle':
+        return ('BUNDLE', accentOrange);
+      // case 'olympiad':   return ('OLYMPIAD',  const Color(0xFF7B1FA2));
+      case 'school':
+        return ('SCHOOL', const Color(0xFF1565C0));
+      case 'competitive':
+        return ('COMPETITIVE', const Color(0xFFBF360C));
+      case 'skill development':
+        return ('SKILL DEV', const Color(0xFF2E7D32));
+      // case 'tournament': return ('TOURNAMENT', const Color(0xFF00838F));
+      case 'challenge':
+        return ('CHALLENGE', const Color(0xFFD81B60));
+      default:
+        return ('TEST', drawerColor);
+    }
+  }
+
+  // ✅ Updated _metaChip to accept optional color
+  Widget _metaChip({required IconData icon, required String label, Color? color}) {
+    final c = color ?? Colors.grey.shade500;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
+      decoration: BoxDecoration(
+        color: color != null ? color.withOpacity(0.08) : const Color(0xFFF0F1F5),
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12.sp, color: c),
+          SizedBox(width: 4.w),
+          CustomText(
+            text: label,
+            size: 11,
+            color: c,
+            weight: FontWeight.w600,
+          ),
         ],
       ),
-    ),
-  );
-}
-
-(String, Color) _typeInfo(String? itemType) {
-  switch (itemType?.toLowerCase()) {
-    case 'testbundle': return ('BUNDLE',    accentOrange);
-    // case 'olympiad':   return ('OLYMPIAD',  const Color(0xFF7B1FA2));
-    case 'school':     return ('SCHOOL',    const Color(0xFF1565C0));
-    case 'competitive':return ('COMPETITIVE', const Color(0xFFBF360C));
-    case 'skill development': return ('SKILL DEV', const Color(0xFF2E7D32));
-    // case 'tournament': return ('TOURNAMENT', const Color(0xFF00838F));
-    case 'challenge':  return ('CHALLENGE', const Color(0xFFD81B60));
-    default:           return ('TEST',      drawerColor);
+    );
   }
-}
 
-Widget _metaChip({required IconData icon, required String label, Color? color}) {
-  final c = color ?? Colors.grey.shade500;
-  return Container(
-    padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
-    decoration: BoxDecoration(
-      color: color != null ? color.withOpacity(0.08) : const Color(0xFFF0F1F5),
-      borderRadius: BorderRadius.circular(8.r),
-    ),
-    child: Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 12.sp, color: c),
-        SizedBox(width: 4.w),
-        CustomText(
-          text: label,
-          size: 11,
-          color: c,
-          weight: FontWeight.w600,
-        ),
-      ],
-    ),
-  );
-}
   void _showBundleDetail(
     BuildContext context,
     Item item,
@@ -823,33 +872,6 @@ Widget _metaChip({required IconData icon, required String label, Color? color}) 
       builder: (_) => _BundleDetailSheet(item: item),
     );
   }
-
-  // ─────────────────────────────────────────────────────────────────
-  //  META CHIP
-  // ─────────────────────────────────────────────────────────────────
-
-  // Widget _metaChip({required IconData icon, required String label}) {
-  //   return Container(
-  //     padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 5.h),
-  //     decoration: BoxDecoration(
-  //       color: const Color(0xFFF0F1F5),
-  //       borderRadius: BorderRadius.circular(8.r),
-  //     ),
-  //     child: Row(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         Icon(icon, size: 12.sp, color: Colors.grey.shade500),
-  //         SizedBox(width: 4.w),
-  //         CustomText(
-  //           text: label,
-  //           size: 11,
-  //           color: Colors.grey.shade600,
-  //           weight: FontWeight.w600,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   String _formatDuration(int minutes) {
     if (minutes < 60) return '${minutes}m';
@@ -923,10 +945,18 @@ Widget _metaChip({required IconData icon, required String label, Color? color}) 
 // ─────────────────────────────────────────────────────────────────────────────
 //  STICKY HEADER DELEGATE
 // ─────────────────────────────────────────────────────────────────────────────
-
+//
+// ✅ Fix: `extent` is now passed in (fixed logical pixels, computed once in
+// _StoreScreenState) instead of being recalculated here from ScreenUtil's
+// `.h` values. That's what caused the overflow on rotation — `.h` scales
+// with screen height, so the header's box would shrink in landscape faster
+// than the chip rows inside it could, and the filter row would poke out
+// past the sliver's bounds.
 class _StickyFilterDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
-  const _StickyFilterDelegate({required this.child});
+  final double extent;
+
+  const _StickyFilterDelegate({required this.child, required this.extent});
 
   @override
   Widget build(
@@ -934,17 +964,23 @@ class _StickyFilterDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    return SizedBox(height: maxExtent, child: child);
+    // ClipRect as a safety net: even if content somehow measures a hair
+    // taller than `extent` (e.g. platform font scaling), it gets clipped
+    // instead of visibly spilling out of the sliver box.
+    return ClipRect(
+      child: SizedBox(height: maxExtent, child: child),
+    );
   }
 
   @override
-  double get maxExtent => 8.h + 40.h + 8.h + 40.h + 8.h;
+  double get maxExtent => extent;
 
   @override
-  double get minExtent => maxExtent;
+  double get minExtent => extent;
 
   @override
-  bool shouldRebuild(covariant _StickyFilterDelegate oldDelegate) => true;
+  bool shouldRebuild(covariant _StickyFilterDelegate oldDelegate) =>
+      oldDelegate.extent != extent || oldDelegate.child != child;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -971,8 +1007,7 @@ class _ExpandableCategorySheet extends StatefulWidget {
       _ExpandableCategorySheetState();
 }
 
-class _ExpandableCategorySheetState
-    extends State<_ExpandableCategorySheet> {
+class _ExpandableCategorySheetState extends State<_ExpandableCategorySheet> {
   final Set<String> _expandedIds = {};
 
   @override
@@ -1051,19 +1086,16 @@ class _ExpandableCategorySheetState
           Flexible(
             child: ListView.builder(
               shrinkWrap: true,
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               itemCount: widget.allRootCategories.length,
               itemBuilder: (context, index) {
-                return _buildCategoryNode(
-                    widget.allRootCategories[index],
+                return _buildCategoryNode(widget.allRootCategories[index],
                     depth: 0);
               },
             ),
           ),
 
-          SizedBox(
-              height: MediaQuery.of(context).padding.bottom + 16.h),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 16.h),
         ],
       ),
     );
@@ -1071,8 +1103,7 @@ class _ExpandableCategorySheetState
 
   Widget _buildCategoryNode(CategoryModel cat, {required int depth}) {
     final isExpanded = _expandedIds.contains(cat.id);
-    final isSelected =
-        widget.provider.selectedCategoryId == cat.id;
+    final isSelected = widget.provider.selectedCategoryId == cat.id;
     final hasChildren = cat.hasChildren;
 
     return Column(
@@ -1115,9 +1146,7 @@ class _ExpandableCategorySheetState
                     margin: EdgeInsets.only(right: 10.w),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isSelected
-                          ? drawerColor
-                          : Colors.grey.shade300,
+                      color: isSelected ? drawerColor : Colors.grey.shade300,
                     ),
                   ),
                 ],
@@ -1291,7 +1320,7 @@ class _BundleDetailSheet extends StatelessWidget {
                         '${tests.length} Test${tests.length == 1 ? '' : 's'}',
                       ),
                       _headerChip(
-                        Icons.monetization_on_outlined,
+                        Icons.currency_rupee_rounded,
                         '\u20B9$finalPrice',
                       ),
                       _headerChip(
@@ -1369,8 +1398,7 @@ class _BundleDetailSheet extends StatelessWidget {
                     ...tests.map((test) => _testCard(test)),
 
                   SizedBox(
-                    height:
-                        MediaQuery.of(context).padding.bottom + 24.h,
+                    height: MediaQuery.of(context).padding.bottom + 24.h,
                   ),
                 ],
               ),
@@ -1413,13 +1441,11 @@ class _BundleDetailSheet extends StatelessWidget {
             spacing: 6.w,
             runSpacing: 4.h,
             children: [
-              if (test.durationMinutes != null &&
-                  test.durationMinutes! > 0)
-                _testChip(Icons.timer_outlined,
-                    '${test.durationMinutes} min'),
+              if (test.durationMinutes != null && test.durationMinutes! > 0)
+                _testChip(
+                    Icons.timer_outlined, '${test.durationMinutes} min'),
               _testChip(Icons.assignment_outlined, 'Test'),
-              if (test.categoryPath != null &&
-                  test.categoryPath!.isNotEmpty)
+              if (test.categoryPath != null && test.categoryPath!.isNotEmpty)
                 _testChip(Icons.category_outlined, test.categoryPath!),
             ],
           ),

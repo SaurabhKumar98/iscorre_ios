@@ -412,7 +412,7 @@ class _PersonalizedLearningScreenState
                   CustomText(text: test.title ?? "", size: 13, maxLines: 1),
                   if (price > 0 && !isPurchased)
                     CustomText(
-                      text: "₹$price",
+                      text: "$price",
                       size: 11,
                       color: Colors.grey.shade500,
                     ),

@@ -163,42 +163,53 @@ class _LoginScreenState extends State<LoginScreen>
 
   // ─────────────────────── HEADER ──────────────────────────────────
 
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color:        Colors.white,
-            borderRadius: BorderRadius.circular(20.r),
-            boxShadow: [
-              BoxShadow(
-                color:      Colors.black.withOpacity(0.1),
-                blurRadius: 20.r,
-                offset:     Offset(0, 10.h),
-              ),
-            ],
+Widget _buildHeader() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Container(
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20.r,
+              offset: Offset(0, 10.h),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.r),
+          child: Image.asset(
+            'assets/images/applogo.jpeg',
+            width: 40.sp,
+            height: 40.sp,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              // Fallback icon if image fails to load
+              return Icon(Icons.school_rounded, color: drawerColor, size: 40.sp);
+            },
           ),
-          child: Icon(Icons.school_rounded, color: drawerColor, size: 40.sp),
         ),
-        SizedBox(height: 24.h),
-        const CustomText(
-          text:   "Welcome Back!",
-          size:   32,
-          weight: FontWeight.w800,
-          color:  Colors.white,
-        ),
-        SizedBox(height: 8.h),
-        CustomText(
-          text:  "Sign in to continue your learning journey",
-          size:  15,
-          color: Colors.white.withOpacity(0.9),
-        ),
-      ],
-    );
-  }
-
+      ),
+      SizedBox(height: 24.h),
+      const CustomText(
+        text: "Welcome Back!",
+        size: 32,
+        weight: FontWeight.w800,
+        color: Colors.white,
+      ),
+      SizedBox(height: 8.h),
+      CustomText(
+        text: "Sign in to continue your learning journey",
+        size: 15,
+        color: Colors.white.withOpacity(0.9),
+      ),
+    ],
+  );
+}
   // ─────────────────────── FORM CARD ───────────────────────────────
 
   Widget _buildForm() {

@@ -266,7 +266,7 @@ class TournamentCard extends StatelessWidget {
                           children: [
                             if (hasDiscount && tournament.originalPrice > 0)
                               Text(
-                                '${tournament.originalPrice}',
+                                '₹${tournament.originalPrice}',
                                 style: TextStyle(
                                   fontSize: 10.sp,
                                   color: Colors.black38,
@@ -284,7 +284,7 @@ class TournamentCard extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8.r),
                               ),
                               child: Text(
-                                isFree ? 'FREE' : '$effectivePrice',
+                                isFree ? 'FREE' : '₹$effectivePrice',
                                 style: TextStyle(
                                   fontSize: 14.sp,
                                   fontWeight: FontWeight.w800,

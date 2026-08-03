@@ -383,7 +383,7 @@ class UpgradeCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'Upgrade for $upgradeCost to unlock',
+                  'Upgrade for ₹$upgradeCost to unlock',
                   style: GoogleFonts.poppins(
                       fontSize: 11, color: Colors.orange[600]),
                 ),

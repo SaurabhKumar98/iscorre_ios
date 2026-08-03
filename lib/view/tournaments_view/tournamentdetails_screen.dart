@@ -277,7 +277,7 @@ class _StatusRow extends StatelessWidget {
           children: [
             if (hasDiscount && (originalPrice ?? 0) > 0)
               Text(
-                '$originalPrice',
+                '₹$originalPrice',
                 style: TextStyle(
                   fontSize: 11.sp,
                   color: Colors.black38,
@@ -295,7 +295,7 @@ class _StatusRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Text(
-                isFree ? 'FREE' : '$effectivePrice',
+                isFree ? 'FREE' : '₹$effectivePrice',
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w800,

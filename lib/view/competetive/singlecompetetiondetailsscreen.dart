@@ -256,7 +256,7 @@ class _SinglecompetetiondetailsscreenState
                             if (isUpgradable && upgradeCost > 0)
                               _bannerChip(
                                 Icons.upgrade_rounded,
-                                'Upgrade $upgradeCost',
+                                'Upgrade ₹$upgradeCost',
                                 Colors.orange.shade300,
                               ),
                           ] else if (isUpgradable) ...[
@@ -264,19 +264,19 @@ class _SinglecompetetiondetailsscreenState
                               Icons.upgrade_rounded,
                               isFreeUpgrade
                                   ? 'FREE Upgrade'
-                                  : 'Upgrade $upgradeCost',
+                                  : 'Upgrade ₹$upgradeCost',
                               Colors.orange.shade300,
                             ),
                           ] else if (price > 0) ...[
                             _bannerChip(
-                              Icons.monetization_on_rounded,
-                              '$price',
+                              Icons.currency_rupee_rounded,
+                              '₹$price',
                               Colors.white70,
                             ),
                             if (originalPrice > price) ...[
                               const SizedBox(width: 8),
                               Text(
-                                '$originalPrice',
+                                '₹$originalPrice',
                                 style: GoogleFonts.outfit(
                                   fontSize: 13,
                                   color: Colors.white38,
@@ -295,7 +295,7 @@ class _SinglecompetetiondetailsscreenState
                             const SizedBox(width: 8),
                             _bannerChip(
                               Icons.local_offer_rounded,
-                              '$discountAmount off',
+                              '₹$discountAmount off',
                               Colors.amber.shade300,
                             ),
                           ],
@@ -525,7 +525,7 @@ class _OfferBanner extends StatelessWidget {
     final DateTime? validTill = offer.validTill;
     final String desc = offer.description ?? '';
 
-    final String discountStr = type == 'percent' ? '$discount%' : '$discount';
+    final String discountStr = type == 'percent' ? '$discount%' : '₹$discount';
 
     return Container(
       width: double.infinity,
@@ -691,13 +691,13 @@ class _QuickStatsRow extends StatelessWidget {
         if ((data.discountAmount ?? 0) > 0)
           _StatPill(
             icon: Icons.local_offer_rounded,
-            label: '${data.discountAmount} off',
+            label: '₹${data.discountAmount} off',
             color: Colors.orange.shade700,
           ),
         if (bundleHasAccess && isUpgradable && upgradeCost > 0)
           _StatPill(
             icon: Icons.upgrade_rounded,
-            label: 'Upgrade $upgradeCost',
+            label: 'Upgrade ₹$upgradeCost',
             color: Colors.deepOrange.shade600,
           ),
       ],
@@ -1014,7 +1014,7 @@ class _AccessCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isFreeUpgrade ? 'FREE UPGRADE' : '$upgradeCost',
+                          isFreeUpgrade ? 'FREE UPGRADE' : '₹$upgradeCost',
                           style: GoogleFonts.outfit(
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
@@ -1125,7 +1125,7 @@ class _AccessCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                isFreeUpgrade ? 'FREE UPGRADE' : '$upgradeCost',
+                isFreeUpgrade ? 'FREE UPGRADE' : '₹$upgradeCost',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.outfit(
                   fontSize: 26,
@@ -1155,7 +1155,7 @@ class _AccessCard extends StatelessWidget {
               child: Text(
                 isFreeUpgrade
                     ? 'Get Free Upgrade'
-                    : 'Upgrade Now — $upgradeCost',
+                    : 'Upgrade Now — ₹$upgradeCost',
                 style: GoogleFonts.outfit(
                   fontWeight: FontWeight.w700,
                   fontSize: 15,
@@ -1210,7 +1210,7 @@ class _AccessCard extends StatelessWidget {
             children: [
               if (price > 0) ...[
                 Text(
-                  '$price',
+                  '₹$price',
                   style: GoogleFonts.outfit(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
@@ -1220,7 +1220,7 @@ class _AccessCard extends StatelessWidget {
                 if (originalPrice > price) ...[
                   const SizedBox(width: 10),
                   Text(
-                    '$originalPrice',
+                    '₹$originalPrice',
                     style: GoogleFonts.outfit(
                       fontSize: 16,
                       decoration: TextDecoration.lineThrough,
@@ -1239,7 +1239,7 @@ class _AccessCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        '$discountAmount off',
+                        '₹$discountAmount off',
                         style: GoogleFonts.outfit(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -1280,7 +1280,7 @@ class _AccessCard extends StatelessWidget {
               elevation: 0,
             ),
             child: Text(
-              price == 0 ? 'Get Free Access' : 'Take Bundle Now',
+              price == 0 ? 'Get Free Access' : 'Buy Bundle Now',
               style: GoogleFonts.outfit(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
@@ -1614,14 +1614,14 @@ List<double> _buildProgression(ExamResultsData data) {
                         )
                       else ...[
                         _MetaChip(
-                          icon: Icons.monetization_on_outlined,
+                          icon: Icons.currency_rupee_rounded,
                           label: '$effectivePrice',
                           color: const Color(0xFF162556),
                         ),
                         if (originalPrice > effectivePrice) ...[
                           const SizedBox(width: 6),
                           Text(
-                            '$originalPrice',
+                            '₹$originalPrice',
                             style: GoogleFonts.outfit(
                               fontSize: 11,
                               color: Colors.grey.shade400,
@@ -1641,7 +1641,7 @@ List<double> _buildProgression(ExamResultsData data) {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
-                              '$discountAmount off',
+                              '₹$discountAmount off',
                               style: GoogleFonts.outfit(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -1680,7 +1680,7 @@ List<double> _buildProgression(ExamResultsData data) {
                             ),
                             const SizedBox(width: 3),
                             Text(
-                              'Bundle ${widget.upgradeCost}',
+                              'Bundle ₹${widget.upgradeCost}',
                               style: GoogleFonts.outfit(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -1894,7 +1894,7 @@ class _TestBuyButton extends StatelessWidget {
         isFree ? Colors.green.shade600 : const Color(0xFF162556);
     final buttonIcon =
         isFree ? Icons.lock_open_rounded : Icons.shopping_cart_rounded;
-    final buttonLabel = isFree ? 'Free' : '$testPrice';
+    final buttonLabel = isFree ? 'Free' : '₹$testPrice';
 
     return GestureDetector(
       onTap: () {

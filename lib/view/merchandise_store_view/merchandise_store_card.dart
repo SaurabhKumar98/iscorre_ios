@@ -70,7 +70,9 @@ class MerchandiseCard extends StatelessWidget {
                           alignment: Alignment.center,
                           child: Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 3.h),
+                              horizontal: 8.w,
+                              vertical: 3.h,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.red.shade700,
                               borderRadius: BorderRadius.circular(6.r),
@@ -98,7 +100,9 @@ class MerchandiseCard extends StatelessWidget {
                         if (data.category.isNotEmpty) ...[
                           Container(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 8.w, vertical: 3.h),
+                              horizontal: 8.w,
+                              vertical: 3.h,
+                            ),
                             decoration: BoxDecoration(
                               color: accentOrange.withOpacity(.1),
                               borderRadius: BorderRadius.circular(20.r),
@@ -140,40 +144,51 @@ class MerchandiseCard extends StatelessWidget {
                           children: [
                             // ₹ Price
                             // Price row — REPLACE the existing price section with this:
-if (data.price > 0) ...[
-  Icon(Icons.monetization_on, size: 13.sp, color: drawerColor),
-  if (data.hasDiscount) ...[
-    // Strikethrough original price
-    Text(
-      '${data.originalPrice}',
-      style: TextStyle(
-        fontSize: 11.sp,
-        color: Colors.grey.shade400,
-        decoration: TextDecoration.lineThrough,
-      ),
-    ),
-    SizedBox(width: 4.w),
-    // Discounted price
-    CustomText(
-      text: '${data.effectivePrice}',
-      size: 14,
-      weight: FontWeight.w800,
-      color: Colors.green.shade700,
-    ),
-  ] else
-    CustomText(
-      text: '${data.price}',
-      size: 14,
-      weight: FontWeight.w800,
-      color: drawerColor,
-    ),
-  SizedBox(width: 6.w),
-  Container(width: 1, height: 14.h, color: Colors.grey.shade300),
-  SizedBox(width: 6.w),
-],
+                            if (data.price > 0) ...[
+                              Icon(
+                                Icons.currency_rupee,
+                                size: 13.sp,
+                                color: drawerColor,
+                              ),
+                              if (data.hasDiscount) ...[
+                                // Strikethrough original price
+                                Text(
+                                  '${data.originalPrice}',
+                                  style: TextStyle(
+                                    fontSize: 11.sp,
+                                    color: Colors.grey.shade400,
+                                    decoration: TextDecoration.lineThrough,
+                                  ),
+                                ),
+                                SizedBox(width: 4.w),
+                                // Discounted price
+                                CustomText(
+                                  text: '${data.effectivePrice}',
+                                  size: 14,
+                                  weight: FontWeight.w800,
+                                  color: Colors.green.shade700,
+                                ),
+                              ] else
+                                CustomText(
+                                  text: '${data.price}',
+                                  size: 14,
+                                  weight: FontWeight.w800,
+                                  color: drawerColor,
+                                ),
+                              SizedBox(width: 6.w),
+                              Container(
+                                width: 1,
+                                height: 14.h,
+                                color: Colors.grey.shade300,
+                              ),
+                              SizedBox(width: 6.w),
+                            ],
                             // Points badge
-                            Icon(Icons.workspace_premium,
-                                size: 12.sp, color: Colors.amber),
+                            Icon(
+                              Icons.workspace_premium,
+                              size: 12.sp,
+                              color: Colors.amber,
+                            ),
                             SizedBox(width: 2.w),
                             CustomText(
                               text: '${data.pointsRequired} pts',
@@ -216,8 +231,11 @@ if (data.price > 0) ...[
 
                 Padding(
                   padding: EdgeInsets.only(right: 10.w, top: 50.h),
-                  child: Icon(Icons.chevron_right,
-                      size: 20.sp, color: Colors.grey.shade400),
+                  child: Icon(
+                    Icons.chevron_right,
+                    size: 20.sp,
+                    color: Colors.grey.shade400,
+                  ),
                 ),
               ],
             ),
@@ -228,24 +246,23 @@ if (data.price > 0) ...[
   }
 
   Widget _badge(String label, Color color) => Container(
-        padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(6.r),
-        ),
-        child: CustomText(
-          text: label,
-          size: 9,
-          weight: FontWeight.w700,
-          color: Colors.white,
-        ),
-      );
+    padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(6.r),
+    ),
+    child: CustomText(
+      text: label,
+      size: 9,
+      weight: FontWeight.w700,
+      color: Colors.white,
+    ),
+  );
 
   Widget _placeholder() => Container(
-        color: Colors.grey.shade100,
-        child: Center(
-          child: Icon(Icons.card_giftcard,
-              size: 36, color: Colors.grey.shade300),
-        ),
-      );
+    color: Colors.grey.shade100,
+    child: Center(
+      child: Icon(Icons.card_giftcard, size: 36, color: Colors.grey.shade300),
+    ),
+  );
 }

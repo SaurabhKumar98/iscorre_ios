@@ -24,25 +24,24 @@ class InstantResultsScreen extends StatefulWidget {
 class _InstantResultsScreenState extends State<InstantResultsScreen> {
   ExamResults? get _r => widget.resultsData?.results;
   String _formatNum(num value) {
-  if (value == value.truncate()) {
-    return value.truncate().toString();
+    if (value == value.truncate()) {
+      return value.truncate().toString();
+    }
+    // Keep at most 1 decimal place if needed
+    return value.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '');
   }
-  // Keep at most 1 decimal place if needed
-  return value.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '');
-}
 
- String get _scoreText => _r != null ? _formatNum(_r!.score) : '-';
+  String get _scoreText => _r != null ? _formatNum(_r!.score) : '-';
 
-String get _maxScoreText => _r != null ? '/${_formatNum(_r!.maxScore)}' : '';
+  String get _maxScoreText => _r != null ? '/${_formatNum(_r!.maxScore)}' : '';
 
-String get _percentageText =>
-    _r != null ? '${_r!.percentage.toStringAsFixed(0)}%' : '-';
+  String get _percentageText =>
+      _r != null ? '${_r!.percentage.toStringAsFixed(0)}%' : '-';
 
-String get _percentileText =>
-    _r != null ? _formatNum(_r!.percentile) : '-';
+  String get _percentileText =>
+      _r != null ? _formatNum(_r!.percentile) : '-';
 
-
-double get _finalScore => _r != null ? _r!.percentage : 0.0;
+  double get _finalScore => _r != null ? _r!.percentage : 0.0;
 
   /// ✅ KEY GATE — when true, hide "Question Explanations" and "Student Ranking"
   bool get _isCertificationFailed => _r?.isCertificationFailed ?? false;
@@ -87,8 +86,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
                   ],
 
                   // ✅ HIDE question explanations if certification failed
-                  if (!_isCertificationFailed)
-                    _buildQuestionExplanations(),
+                  if (!_isCertificationFailed) _buildQuestionExplanations(),
 
                   SizedBox(height: 100.h),
                 ],
@@ -143,8 +141,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
           ),
           SizedBox(height: 14.h),
           Container(
-            padding:
-                EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: Colors.red.shade100,
               borderRadius: BorderRadius.circular(10.r),
@@ -152,8 +149,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.replay_rounded,
-                    size: 16.sp, color: Colors.red.shade700),
+                Icon(Icons.replay_rounded, size: 16.sp, color: Colors.red.shade700),
                 SizedBox(width: 6.w),
                 CustomText(
                   text: 'Retake the test to unlock full results',
@@ -255,6 +251,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
         padding: EdgeInsets.all(16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const CustomText(
               text: 'SCORE',
@@ -265,24 +262,29 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
             ),
             SizedBox(height: 8.h),
             if (_r != null)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  CustomText(
-                    text: _scoreText,
-                    size: 36,
-                    weight: FontWeight.w700,
-                    color: Colors.white,
-                    maxLines: 1,
-                  ),
-                  CustomText(
-                    text: _maxScoreText,
-                    size: 20,
-                    weight: FontWeight.w500,
-                    color: Colors.white70,
-                    maxLines: 1,
-                  ),
-                ],
+              // ✅ FittedBox: shrinks instead of overflowing on rotation/tablet
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    CustomText(
+                      text: _scoreText,
+                      size: 36,
+                      weight: FontWeight.w700,
+                      color: Colors.white,
+                      maxLines: 1,
+                    ),
+                    CustomText(
+                      text: _maxScoreText,
+                      size: 20,
+                      weight: FontWeight.w500,
+                      color: Colors.white70,
+                      maxLines: 1,
+                    ),
+                  ],
+                ),
               )
             else
               _comingSoonBadge(),
@@ -294,9 +296,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
-        color: darkText
-            ? Colors.grey.shade200
-            : Colors.white.withOpacity(0.25),
+        color: darkText ? Colors.grey.shade200 : Colors.white.withOpacity(0.25),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
@@ -334,8 +334,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bar_chart_rounded,
-                size: 32.sp, color: Colors.grey.shade400),
+            Icon(Icons.bar_chart_rounded, size: 32.sp, color: Colors.grey.shade400),
             SizedBox(height: 8.h),
             CustomText(
               text: 'Chart will be available soon',
@@ -354,6 +353,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
         padding: EdgeInsets.all(16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             CustomText(
               text: 'PERCENTAGE',
@@ -364,12 +364,16 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
             ),
             SizedBox(height: 8.h),
             if (_r != null)
-              CustomText(
-                text: _percentageText,
-                size: 32,
-                weight: FontWeight.w700,
-                color: Colors.black,
-                maxLines: 1,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: CustomText(
+                  text: _percentageText,
+                  size: 32,
+                  weight: FontWeight.w700,
+                  color: Colors.black,
+                  maxLines: 1,
+                ),
               )
             else
               _comingSoonBadge(darkText: true),
@@ -381,6 +385,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
         padding: EdgeInsets.all(16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             CustomText(
               text: 'PERCENTILE',
@@ -391,12 +396,16 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
             ),
             SizedBox(height: 8.h),
             if (_r != null)
-              CustomText(
-                text: _percentileText,
-                size: 32,
-                weight: FontWeight.w700,
-                color: const Color(0xFF5B93FF),
-                maxLines: 1,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: CustomText(
+                  text: _percentileText,
+                  size: 32,
+                  weight: FontWeight.w700,
+                  color: const Color(0xFF5B93FF),
+                  maxLines: 1,
+                ),
               )
             else
               _comingSoonBadge(darkText: true),
@@ -423,6 +432,7 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
         padding: EdgeInsets.all(16.w),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             const CustomText(
               text: 'STATUS',
@@ -432,16 +442,20 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
               maxLines: 1,
             ),
             SizedBox(height: 8.h),
-            CustomText(
-              text: _r != null
-                  ? widget.resultsData!.session.status == 'completed'
-                      ? 'Completed'
-                      : 'Submitted'
-                  : 'Submitted',
-              size: 16,
-              weight: FontWeight.w700,
-              color: Colors.white,
-              maxLines: 1,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: CustomText(
+                text: _r != null
+                    ? widget.resultsData!.session.status == 'completed'
+                        ? 'Completed'
+                        : 'Submitted'
+                    : 'Submitted',
+                size: 16,
+                weight: FontWeight.w700,
+                color: Colors.white,
+                maxLines: 1,
+              ),
             ),
           ],
         ),
@@ -492,121 +506,117 @@ double get _finalScore => _r != null ? _r!.percentage : 0.0;
     );
   }
 
-Widget _buildQuestionWiseChart() {
-  final qs = widget.resultsData?.questions ?? [];
-  if (qs.isEmpty) {
-    return SizedBox(height: 140.h, child: _chartComingSoon());
-  }
+  Widget _buildQuestionWiseChart() {
+    final qs = widget.resultsData?.questions ?? [];
 
-  final total = qs.length;
+    // ✅ clamped so it never collapses/expands too far on rotation or tablets
+    final double chartHeight = 140.h.clamp(120.0, 160.0);
 
-  // ── Adaptive bar width & label interval ──────────────────────────────────
-  // For very few questions, bars should be wider and centered
-  // For many questions, bars get thinner
-  final double barWidth = total <= 5
-      ? 28.w
-      : total <= 10
-          ? 18.w
-          : total <= 30
-              ? 10.w
-              : total <= 100
-                  ? 5.w
-                  : total <= 300
-                      ? 3.w
-                      : 1.5.w;
+    if (qs.isEmpty) {
+      return SizedBox(height: chartHeight, child: _chartComingSoon());
+    }
 
-  // Show label every N questions
-  final int labelEvery = total <= 5
-      ? 1        // Q1 Q2 Q3 Q4 Q5
-      : total <= 10
-          ? 2    // Q1 Q3 Q5...
-          : total <= 30
-              ? 5
-              : total <= 100
-                  ? 10
-                  : total <= 300
-                      ? 50
-                      : 100;
+    final total = qs.length;
 
-  // For small counts, center bars instead of spreading them
-  final alignment = total <= 10
-      ? BarChartAlignment.center
-      : BarChartAlignment.spaceEvenly;
+    // ── Adaptive bar width & label interval ──────────────────────────────────
+    final double barWidth = total <= 5
+        ? 28.w
+        : total <= 10
+            ? 18.w
+            : total <= 30
+                ? 10.w
+                : total <= 100
+                    ? 5.w
+                    : total <= 300
+                        ? 3.w
+                        : 1.5.w;
 
-  return SizedBox(
-    height: 140.h,
-    child: BarChart(
-      BarChartData(
-        alignment: alignment,
-        maxY: 1,
-        barTouchData: BarTouchData(enabled: false),
-        titlesData: FlTitlesData(
-          leftTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: total <= 500, // hide labels entirely for 1000+
-              reservedSize: 20.h,
-              getTitlesWidget: (value, meta) {
-                final index = value.toInt();
-                if (index < 0 || index >= total) {
-                  return const SizedBox.shrink();
-                }
-                // Always show first label
-                final bool showLabel =
-                    index == 0 || (index + 1) % labelEvery == 0;
-                if (!showLabel) return const SizedBox.shrink();
-                return SideTitleWidget(
-                  meta: meta,
-                  child: Text(
-                    'Q${index + 1}',
-                    style: TextStyle(
-                      fontSize: total > 100 ? 7.sp : 9.sp,
-                      color: Colors.grey,
+    final int labelEvery = total <= 5
+        ? 1
+        : total <= 10
+            ? 2
+            : total <= 30
+                ? 5
+                : total <= 100
+                    ? 10
+                    : total <= 300
+                        ? 50
+                        : 100;
+
+    final alignment = total <= 10 ? BarChartAlignment.center : BarChartAlignment.spaceEvenly;
+
+    return SizedBox(
+      height: chartHeight,
+      child: BarChart(
+        BarChartData(
+          alignment: alignment,
+          maxY: 1,
+          barTouchData: BarTouchData(enabled: false),
+          titlesData: FlTitlesData(
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: total <= 500, // hide labels entirely for 1000+
+                reservedSize: 20.h,
+                getTitlesWidget: (value, meta) {
+                  // ✅ same fix as the score progression chart: round(), not toInt()
+                  final index = value.round();
+                  if (index < 0 || index >= total) {
+                    return const SizedBox.shrink();
+                  }
+                  final bool showLabel = index == 0 || (index + 1) % labelEvery == 0;
+                  if (!showLabel) return const SizedBox.shrink();
+                  return SideTitleWidget(
+                    meta: meta,
+                    child: Text(
+                      'Q${index + 1}',
+                      style: TextStyle(
+                        fontSize: total > 100 ? 7.sp : 9.sp,
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
-        ),
-        borderData: FlBorderData(show: false),
-        gridData: const FlGridData(show: false),
-        barGroups: qs.asMap().entries.map((e) {
-          final q = e.value;
-          final Color barColor;
-          if (q.status == 'skipped' || q.status == 'not_visited') {
-            barColor = Colors.blue;
-          } else if (q.isCorrect == true) {
-            barColor = successColor;
-          } else {
-            barColor = Colors.red;
-          }
-          return BarChartGroupData(
-            x: e.key,
-            barRods: [
-              BarChartRodData(
-                toY: 1,
-                color: barColor,
-                width: barWidth,
-                borderRadius: BorderRadius.circular(
-                  total > 100 ? 1.r : 3.r,
+          borderData: FlBorderData(show: false),
+          gridData: const FlGridData(show: false),
+          barGroups: qs.asMap().entries.map((e) {
+            final q = e.value;
+            final Color barColor;
+            if (q.status == 'skipped' || q.status == 'not_visited') {
+              barColor = Colors.blue;
+            } else if (q.isCorrect == true) {
+              barColor = successColor;
+            } else {
+              barColor = Colors.red;
+            }
+            return BarChartGroupData(
+              x: e.key,
+              barRods: [
+                BarChartRodData(
+                  toY: 1,
+                  color: barColor,
+                  width: barWidth,
+                  borderRadius: BorderRadius.circular(total > 100 ? 1.r : 3.r),
                 ),
-              ),
-            ],
-          );
-        }).toList(),
+              ],
+            );
+          }).toList(),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
+
   Widget _buildLegend() => Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -647,118 +657,133 @@ Widget _buildQuestionWiseChart() {
         ],
       );
 
- Widget _buildScoreProgressionChart() {
-  if (widget.scoreProgression.isEmpty) return _chartComingSoon();
+  Widget _buildScoreProgressionChart() {
+    if (widget.scoreProgression.isEmpty) return _chartComingSoon();
 
-  final spots = List.generate(
-    widget.scoreProgression.length,
-(i) => FlSpot(i.toDouble(), widget.scoreProgression[i].clamp(0.0, 100.0)),
-  );
-  final maxX = (spots.length - 1).toDouble();
-  final total = widget.scoreProgression.length;
+    final spots = List.generate(
+      widget.scoreProgression.length,
+      (i) => FlSpot(i.toDouble(), widget.scoreProgression[i].clamp(0.0, 100.0)),
+    );
 
-  // Decide label interval based on question count
-  final int labelInterval = total <= 10
-      ? 1
-      : total <= 20
-          ? 2
-          : total <= 40
-              ? 5
-              : 10;
+    // ✅ FIX: guard against single-question exams where maxX would equal minX
+    // (previously `(spots.length - 1).toDouble()` could be 0, collapsing the
+    // chart's X domain to nothing and making the line/dashed-line invisible)
+    final double maxX = spots.length > 1 ? (spots.length - 1).toDouble() : 1.0;
+    final total = widget.scoreProgression.length;
 
-  return SizedBox(
-    height: 200.h,
-    child: LineChart(
-      LineChartData(
-        minX: 0,
-        maxX: maxX,
-        minY: 0,
-        maxY: 100,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalInterval: 25,
-          getDrawingHorizontalLine: (_) =>
-              FlLine(color: Colors.grey.shade300, strokeWidth: 1),
-        ),
-        titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              interval: 25,
-              reservedSize: 30,
-             getTitlesWidget: (v, meta) => SideTitleWidget(
-  meta: meta,
-  child: Text(
-    _formatNum(v),   // ← uses _formatNum instead of v.toInt().toString()
-    style: TextStyle(fontSize: 10.sp, color: Colors.grey),
-  ),
-),
-            ),
+    // Decide label interval based on question count
+    final int labelInterval = total <= 10
+        ? 1
+        : total <= 20
+            ? 2
+            : total <= 40
+                ? 5
+                : 10;
+
+    // ✅ clamped chart height so rotation/tablet can't squash or blow it up
+    final double chartHeight = 200.h.clamp(170.0, 220.0);
+
+    return SizedBox(
+      height: chartHeight,
+      child: LineChart(
+        LineChartData(
+          minX: 0,
+          maxX: maxX,
+          minY: 0,
+          maxY: 100,
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: 25,
+            getDrawingHorizontalLine: (_) =>
+                FlLine(color: Colors.grey.shade300, strokeWidth: 1),
           ),
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              reservedSize: 24.h,
-              interval: labelInterval.toDouble(),
-              getTitlesWidget: (v, meta) {
-                final index = v.toInt();
-                if (index < 0 || index >= total) {
-                  return const SizedBox.shrink();
-                }
-                if (index % labelInterval != 0) {
-                  return const SizedBox.shrink();
-                }
-                return SideTitleWidget(
+          titlesData: FlTitlesData(
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: 25,
+                // ✅ FIX: was raw `30` (unscaled) while bottomTitles used `.h` —
+                // mismatched scaling made the two axis gutters disproportionate
+                // on tablet/landscape. Now consistently scaled.
+                reservedSize: 30.w,
+                getTitlesWidget: (v, meta) => SideTitleWidget(
                   meta: meta,
                   child: Text(
-                    'Q${index + 1}',
-                    style: TextStyle(fontSize: 9.sp, color: Colors.grey),
+                    _formatNum(v),
+                    style: TextStyle(fontSize: 10.sp, color: Colors.grey),
                   ),
-                );
-              },
-            ),
-          ),
-          rightTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: const AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-        ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          LineChartBarData(
-            spots: spots,
-            isCurved: true,
-            color: const Color(0xFF5B93FF),
-            barWidth: 2.5,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
-                radius: 3,
-                color: Colors.white,
-                strokeWidth: 1.5,
-                strokeColor: const Color(0xFF5B93FF),
+                ),
               ),
             ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 24.h,
+                interval: labelInterval.toDouble(),
+                getTitlesWidget: (v, meta) {
+                  // ✅ FIX: was v.toInt() — floating-point tick values from
+                  // fl_chart (e.g. 1.9999998 instead of 2.0) were being
+                  // truncated to the wrong integer, which then failed the
+                  // "index % labelInterval" check on every tick and wiped
+                  // out the entire axis. round() corrects this.
+                  final index = v.round();
+                  if (index < 0 || index >= total) {
+                    return const SizedBox.shrink();
+                  }
+                  if (index % labelInterval != 0) {
+                    return const SizedBox.shrink();
+                  }
+                  return SideTitleWidget(
+                    meta: meta,
+                    child: Text(
+                      'Q${index + 1}',
+                      style: TextStyle(fontSize: 9.sp, color: Colors.grey),
+                    ),
+                  );
+                },
+              ),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
           ),
-          // Dashed final score line
-          LineChartBarData(
-            spots: [FlSpot(0, _finalScore), FlSpot(maxX, _finalScore)],
-            isCurved: false,
-            color: const Color(0xFF5B93FF),
-            barWidth: 1.5,
-            dashArray: [6, 4],
-            dotData: const FlDotData(show: false),
-          ),
-        ],
+          borderData: FlBorderData(show: false),
+          lineBarsData: [
+            LineChartBarData(
+              spots: spots,
+              isCurved: true,
+              color: const Color(0xFF5B93FF),
+              barWidth: 2.5,
+              dotData: FlDotData(
+                show: true,
+                getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+                  radius: 3,
+                  color: Colors.white,
+                  strokeWidth: 1.5,
+                  strokeColor: const Color(0xFF5B93FF),
+                ),
+              ),
+            ),
+            // Dashed final score line
+            LineChartBarData(
+              spots: [FlSpot(0, _finalScore), FlSpot(maxX, _finalScore)],
+              isCurved: false,
+              color: const Color(0xFF5B93FF),
+              barWidth: 1.5,
+              dashArray: [6, 4],
+              dotData: const FlDotData(show: false),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
-  BarChartGroupData _barGroup(int x, double y, {bool highlighted = false}) =>
-      BarChartGroupData(
+    );
+  }
+
+  BarChartGroupData _barGroup(int x, double y, {bool highlighted = false}) => BarChartGroupData(
         x: x,
         barRods: [
           BarChartRodData(
@@ -854,8 +879,7 @@ Widget _buildQuestionWiseChart() {
     );
   }
 
-  Widget _rankSummaryCard(
-      String label, String value, String sub, Color color) {
+  Widget _rankSummaryCard(String label, String value, String sub, Color color) {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
@@ -865,19 +889,28 @@ Widget _buildQuestionWiseChart() {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           CustomText(
             text: label,
             size: 10,
             weight: FontWeight.w600,
             color: color,
+            maxLines: 1,
           ),
           SizedBox(height: 4.h),
-          CustomText(
-            text: value,
-            size: 22,
-            weight: FontWeight.w700,
-            color: color,
+          // ✅ FittedBox: prevents overflow when this card is squeezed narrow
+          // (3-across row on a portrait phone / rotated tablet)
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: CustomText(
+              text: value,
+              size: 22,
+              weight: FontWeight.w700,
+              color: color,
+              maxLines: 1,
+            ),
           ),
           SizedBox(height: 2.h),
           CustomText(
@@ -912,10 +945,10 @@ Widget _buildQuestionWiseChart() {
     final scoreText = '${t.score ?? 0}/${t.maxScore ?? 0}';
     final completedTime = t.completedAt != null
         ? '${t.completedAt!.day.toString().padLeft(2, '0')}/'
-              '${t.completedAt!.month.toString().padLeft(2, '0')}/'
-              '${t.completedAt!.year}, '
-              '${t.completedAt!.hour.toString().padLeft(2, '0')}:'
-              '${t.completedAt!.minute.toString().padLeft(2, '0')} pm'
+            '${t.completedAt!.month.toString().padLeft(2, '0')}/'
+            '${t.completedAt!.year}, '
+            '${t.completedAt!.hour.toString().padLeft(2, '0')}:'
+            '${t.completedAt!.minute.toString().padLeft(2, '0')} pm'
         : '';
 
     return Container(
@@ -929,9 +962,7 @@ Widget _buildQuestionWiseChart() {
         border: Border.all(
           color: isMe
               ? Colors.amber.shade400
-              : (rank == 1
-                    ? const Color(0xFFFFD700).withOpacity(0.4)
-                    : Colors.grey.shade200),
+              : (rank == 1 ? const Color(0xFFFFD700).withOpacity(0.4) : Colors.grey.shade200),
           width: isMe ? 2 : 1,
         ),
       ),
@@ -966,10 +997,7 @@ Widget _buildQuestionWiseChart() {
                     ),
                     if (isMe)
                       Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 2.h,
-                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
                         decoration: BoxDecoration(
                           color: Colors.amber.shade100,
                           borderRadius: BorderRadius.circular(6.r),
@@ -1082,8 +1110,7 @@ Widget _buildQuestionWiseChart() {
     );
   }
 
-  Widget _sectionSummaryChip(
-      String label, String value, Color textColor, Color bgColor) {
+  Widget _sectionSummaryChip(String label, String value, Color textColor, Color bgColor) {
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
@@ -1092,6 +1119,7 @@ Widget _buildQuestionWiseChart() {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           CustomText(
             text: label,
@@ -1101,11 +1129,17 @@ Widget _buildQuestionWiseChart() {
             maxLines: 2,
           ),
           SizedBox(height: 4.h),
-          CustomText(
-            text: value,
-            size: 22,
-            weight: FontWeight.w700,
-            color: textColor,
+          // ✅ FittedBox: same fix as _rankSummaryCard — 3-across row
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: CustomText(
+              text: value,
+              size: 22,
+              weight: FontWeight.w700,
+              color: textColor,
+              maxLines: 1,
+            ),
           ),
         ],
       ),
@@ -1141,15 +1175,18 @@ Widget _buildQuestionWiseChart() {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              CustomText(
-                text: s.sectionName,
-                size: 14,
-                weight: FontWeight.w700,
-                color: Colors.black87,
+              Expanded(
+                child: CustomText(
+                  text: s.sectionName,
+                  size: 14,
+                  weight: FontWeight.w700,
+                  color: Colors.black87,
+                  maxLines: 1,
+                ),
               ),
+              SizedBox(width: 8.w),
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                 decoration: BoxDecoration(
                   color: pctColor.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8.r),
@@ -1159,6 +1196,7 @@ Widget _buildQuestionWiseChart() {
                   size: 13,
                   weight: FontWeight.w700,
                   color: pctColor,
+                  maxLines: 1,
                 ),
               ),
             ],
@@ -1180,8 +1218,7 @@ Widget _buildQuestionWiseChart() {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomText(
-                        text: 'Score', size: 11, color: Colors.grey.shade500),
+                    CustomText(text: 'Score', size: 11, color: Colors.grey.shade500),
                     CustomText(
                       text: '${s.score}/${s.maxScore}',
                       size: 15,
@@ -1195,8 +1232,7 @@ Widget _buildQuestionWiseChart() {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomText(
-                        text: 'Marks', size: 11, color: Colors.grey.shade500),
+                    CustomText(text: 'Marks', size: 11, color: Colors.grey.shade500),
                     CustomText(
                       text: '${s.earnedMarks} | -${s.negativeMarksDeducted}',
                       size: 15,
@@ -1280,8 +1316,9 @@ Widget _buildQuestionWiseChart() {
 
   bool _isOptionInAnswer(dynamic answer, String? optionText) {
     if (answer == null || optionText == null) return false;
-    if (answer is List)
+    if (answer is List) {
       return answer.map((e) => e.toString()).contains(optionText);
+    }
     return answer.toString() == optionText;
   }
 
@@ -1301,18 +1338,14 @@ Widget _buildQuestionWiseChart() {
         borderRadius: BorderRadius.circular(16.r),
         border: Border.all(
           color: isAnswered
-              ? (isCorrect
-                    ? successColor.withOpacity(0.3)
-                    : Colors.red.withOpacity(0.3))
+              ? (isCorrect ? successColor.withOpacity(0.3) : Colors.red.withOpacity(0.3))
               : Colors.grey.shade200,
           width: 1.5,
         ),
         boxShadow: [
           BoxShadow(
             color: isAnswered
-                ? (isCorrect
-                      ? successColor.withOpacity(0.08)
-                      : Colors.red.withOpacity(0.08))
+                ? (isCorrect ? successColor.withOpacity(0.08) : Colors.red.withOpacity(0.08))
                 : Colors.black.withOpacity(0.03),
             blurRadius: 8.r,
             offset: Offset(0, 3.h),
@@ -1325,8 +1358,7 @@ Widget _buildQuestionWiseChart() {
           Row(
             children: [
               Container(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 7.h),
                 decoration: BoxDecoration(
                   gradient: isAnswered
                       ? LinearGradient(
@@ -1362,14 +1394,10 @@ Widget _buildQuestionWiseChart() {
               SizedBox(width: 12.w),
               Expanded(
                 child: CustomText(
-                  text: isAnswered
-                      ? (isCorrect ? 'Correct' : 'Incorrect')
-                      : 'Not Attempted',
+                  text: isAnswered ? (isCorrect ? 'Correct' : 'Incorrect') : 'Not Attempted',
                   size: 13,
                   weight: FontWeight.w600,
-                  color: isAnswered
-                      ? (isCorrect ? successColor : Colors.red)
-                      : Colors.grey.shade600,
+                  color: isAnswered ? (isCorrect ? successColor : Colors.red) : Colors.grey.shade600,
                   maxLines: 1,
                 ),
               ),
@@ -1391,8 +1419,7 @@ Widget _buildQuestionWiseChart() {
           ...detail.options.asMap().entries.map((e) {
             final optionLabel = String.fromCharCode(65 + e.key);
             final option = e.value;
-            final isCorrectOpt =
-                _isOptionInAnswer(item.correctAnswer, option.text);
+            final isCorrectOpt = _isOptionInAnswer(item.correctAnswer, option.text);
             final isUserOpt = _isOptionInAnswer(item.answer, option.text);
             final isWrongUser = isUserOpt && item.isCorrect != true;
 
@@ -1402,9 +1429,7 @@ Widget _buildQuestionWiseChart() {
               decoration: BoxDecoration(
                 color: isCorrectOpt
                     ? successColor.withOpacity(0.08)
-                    : (isWrongUser
-                          ? Colors.red.withOpacity(0.08)
-                          : Colors.grey.shade50),
+                    : (isWrongUser ? Colors.red.withOpacity(0.08) : Colors.grey.shade50),
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: isCorrectOpt
@@ -1431,9 +1456,7 @@ Widget _buildQuestionWiseChart() {
                     decoration: BoxDecoration(
                       color: isCorrectOpt
                           ? successColor
-                          : (isWrongUser
-                                ? Colors.red
-                                : Colors.grey.shade300),
+                          : (isWrongUser ? Colors.red : Colors.grey.shade300),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -1454,14 +1477,10 @@ Widget _buildQuestionWiseChart() {
                         : CustomText(
                             text: option.text,
                             size: 14,
-                            weight: isCorrectOpt
-                                ? FontWeight.w600
-                                : FontWeight.w400,
+                            weight: isCorrectOpt ? FontWeight.w600 : FontWeight.w400,
                             color: isCorrectOpt
                                 ? successColor
-                                : (isWrongUser
-                                      ? Colors.red
-                                      : Colors.black87),
+                                : (isWrongUser ? Colors.red : Colors.black87),
                             maxLines: 3,
                           ),
                   ),
@@ -1481,17 +1500,14 @@ Widget _buildQuestionWiseChart() {
                   ],
                 ),
                 borderRadius: BorderRadius.circular(12.r),
-                border: Border.all(
-                  color: const Color(0xFF5B93FF).withOpacity(0.2),
-                ),
+                border: Border.all(color: const Color(0xFF5B93FF).withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.lightbulb_outline,
-                          color: const Color(0xFF5B93FF), size: 18.sp),
+                      Icon(Icons.lightbulb_outline, color: const Color(0xFF5B93FF), size: 18.sp),
                       SizedBox(width: 8.w),
                       const CustomText(
                         text: 'EXPLANATION',
@@ -1539,8 +1555,7 @@ Widget _buildQuestionWiseChart() {
                 alignment: Alignment.center,
                 child: CircularProgressIndicator(
                   value: progress.expectedTotalBytes != null
-                      ? progress.cumulativeBytesLoaded /
-                            progress.expectedTotalBytes!
+                      ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
                       : null,
                   color: const Color(0xFF5B93FF),
                   strokeWidth: 2,
@@ -1554,8 +1569,7 @@ Widget _buildQuestionWiseChart() {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(10.r),
               ),
-              child: Icon(Icons.broken_image_outlined,
-                  color: Colors.grey.shade400, size: 26.sp),
+              child: Icon(Icons.broken_image_outlined, color: Colors.grey.shade400, size: 26.sp),
             ),
           ),
         );
@@ -1563,8 +1577,7 @@ Widget _buildQuestionWiseChart() {
     );
   }
 
-  Widget _resultOptionImage(String url,
-      {bool isCorrect = false, bool isWrong = false}) {
+  Widget _resultOptionImage(String url, {bool isCorrect = false, bool isWrong = false}) {
     final borderColor = isCorrect
         ? successColor.withOpacity(0.5)
         : isWrong
@@ -1589,8 +1602,7 @@ Widget _buildQuestionWiseChart() {
               alignment: Alignment.center,
               child: CircularProgressIndicator(
                 value: progress.expectedTotalBytes != null
-                    ? progress.cumulativeBytesLoaded /
-                          progress.expectedTotalBytes!
+                    ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
                     : null,
                 color: const Color(0xFF5B93FF),
                 strokeWidth: 2,
@@ -1604,8 +1616,7 @@ Widget _buildQuestionWiseChart() {
               color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(8.r),
             ),
-            child: Icon(Icons.broken_image_outlined,
-                color: Colors.grey.shade400, size: 22.sp),
+            child: Icon(Icons.broken_image_outlined, color: Colors.grey.shade400, size: 22.sp),
           ),
         ),
       ),
@@ -1621,8 +1632,7 @@ Widget _buildQuestionWiseChart() {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-            color: const Color(0xFF5B93FF).withOpacity(0.3), width: 1.5),
+        border: Border.all(color: const Color(0xFF5B93FF).withOpacity(0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -1673,16 +1683,14 @@ Widget _buildQuestionWiseChart() {
               decoration: BoxDecoration(
                 color: const Color(0xFFF0F4FF),
                 borderRadius: BorderRadius.circular(10.r),
-                border: Border.all(
-                    color: const Color(0xFF5B93FF).withOpacity(0.2)),
+                border: Border.all(color: const Color(0xFF5B93FF).withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.menu_book,
-                          color: const Color(0xFF5B93FF), size: 16.sp),
+                      Icon(Icons.menu_book, color: const Color(0xFF5B93FF), size: 16.sp),
                       SizedBox(width: 6.w),
                       const CustomText(
                         text: 'PASSAGE',
@@ -1702,11 +1710,10 @@ Widget _buildQuestionWiseChart() {
                 ],
               ),
             ),
-        if (detail.imageUrls.isNotEmpty) ...[
-  SizedBox(height: 12.h),
-  _resultQuestionImages(detail.imageUrls),
-],
-        
+          if (detail.imageUrls.isNotEmpty) ...[
+            SizedBox(height: 12.h),
+            _resultQuestionImages(detail.imageUrls),
+          ],
           SizedBox(height: 16.h),
           ...subQuestions.asMap().entries.map((e) {
             final subIndex = e.key;
@@ -1719,16 +1726,12 @@ Widget _buildQuestionWiseChart() {
               padding: EdgeInsets.all(14.w),
               decoration: BoxDecoration(
                 color: subIsAnswered
-                    ? (subIsCorrect
-                          ? successColor.withOpacity(0.04)
-                          : Colors.red.withOpacity(0.04))
+                    ? (subIsCorrect ? successColor.withOpacity(0.04) : Colors.red.withOpacity(0.04))
                     : Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(12.r),
                 border: Border.all(
                   color: subIsAnswered
-                      ? (subIsCorrect
-                            ? successColor.withOpacity(0.3)
-                            : Colors.red.withOpacity(0.3))
+                      ? (subIsCorrect ? successColor.withOpacity(0.3) : Colors.red.withOpacity(0.3))
                       : Colors.grey.shade200,
                 ),
               ),
@@ -1738,8 +1741,7 @@ Widget _buildQuestionWiseChart() {
                   Row(
                     children: [
                       Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 10.w, vertical: 5.h),
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                         decoration: BoxDecoration(
                           color: subIsAnswered
                               ? (subIsCorrect ? successColor : Colors.red)
@@ -1758,9 +1760,7 @@ Widget _buildQuestionWiseChart() {
                             SizedBox(width: 4.w),
                             Icon(
                               subIsAnswered
-                                  ? (subIsCorrect
-                                        ? Icons.check_circle
-                                        : Icons.cancel)
+                                  ? (subIsCorrect ? Icons.check_circle : Icons.cancel)
                                   : Icons.remove_circle_outline,
                               color: Colors.white,
                               size: 14.sp,
@@ -1771,14 +1771,10 @@ Widget _buildQuestionWiseChart() {
                       SizedBox(width: 10.w),
                       Expanded(
                         child: CustomText(
-                          text: subIsAnswered
-                              ? (subIsCorrect ? 'Correct' : 'Incorrect')
-                              : 'Not Attempted',
+                          text: subIsAnswered ? (subIsCorrect ? 'Correct' : 'Incorrect') : 'Not Attempted',
                           size: 12,
                           weight: FontWeight.w600,
-                          color: subIsAnswered
-                              ? (subIsCorrect ? successColor : Colors.red)
-                              : Colors.grey,
+                          color: subIsAnswered ? (subIsCorrect ? successColor : Colors.red) : Colors.grey,
                         ),
                       ),
                     ],
@@ -1792,18 +1788,15 @@ Widget _buildQuestionWiseChart() {
                     maxLines: 5,
                   ),
                   if (sub.imageUrls.isNotEmpty) ...[
-  SizedBox(height: 8.h),
-  _resultQuestionImages(sub.imageUrls),
-],
-
+                    SizedBox(height: 8.h),
+                    _resultQuestionImages(sub.imageUrls),
+                  ],
                   SizedBox(height: 10.h),
                   ...sub.options.asMap().entries.map((oe) {
                     final optionLabel = String.fromCharCode(65 + oe.key);
                     final option = oe.value;
-                    final isCorrectOpt =
-                        _isOptionInAnswer(sub.correctAnswer, option.text);
-                    final isUserOpt =
-                        _isOptionInAnswer(sub.studentAnswer, option.text);
+                    final isCorrectOpt = _isOptionInAnswer(sub.correctAnswer, option.text);
+                    final isUserOpt = _isOptionInAnswer(sub.studentAnswer, option.text);
                     final isWrongUser = isUserOpt && sub.isCorrect != true;
 
                     return Container(
@@ -1812,16 +1805,12 @@ Widget _buildQuestionWiseChart() {
                       decoration: BoxDecoration(
                         color: isCorrectOpt
                             ? successColor.withOpacity(0.08)
-                            : (isWrongUser
-                                  ? Colors.red.withOpacity(0.08)
-                                  : Colors.grey.shade50),
+                            : (isWrongUser ? Colors.red.withOpacity(0.08) : Colors.grey.shade50),
                         borderRadius: BorderRadius.circular(10.r),
                         border: Border.all(
                           color: isCorrectOpt
                               ? successColor
-                              : (isWrongUser
-                                    ? Colors.red
-                                    : Colors.grey.shade300),
+                              : (isWrongUser ? Colors.red : Colors.grey.shade300),
                           width: isCorrectOpt || isWrongUser ? 2 : 1,
                         ),
                       ),
@@ -1829,11 +1818,8 @@ Widget _buildQuestionWiseChart() {
                         children: [
                           if (isCorrectOpt || isWrongUser) ...[
                             Icon(
-                              isCorrectOpt
-                                  ? Icons.check_circle
-                                  : Icons.cancel,
-                              color:
-                                  isCorrectOpt ? successColor : Colors.red,
+                              isCorrectOpt ? Icons.check_circle : Icons.cancel,
+                              color: isCorrectOpt ? successColor : Colors.red,
                               size: 16.sp,
                             ),
                             SizedBox(width: 8.w),
@@ -1842,14 +1828,10 @@ Widget _buildQuestionWiseChart() {
                             child: CustomText(
                               text: '$optionLabel. ${option.text}',
                               size: 13,
-                              weight: isCorrectOpt
-                                  ? FontWeight.w600
-                                  : FontWeight.w400,
+                              weight: isCorrectOpt ? FontWeight.w600 : FontWeight.w400,
                               color: isCorrectOpt
                                   ? successColor
-                                  : (isWrongUser
-                                        ? Colors.red
-                                        : Colors.black87),
+                                  : (isWrongUser ? Colors.red : Colors.black87),
                               maxLines: 3,
                             ),
                           ),
@@ -1857,25 +1839,21 @@ Widget _buildQuestionWiseChart() {
                       ),
                     );
                   }),
-                  if (sub.explanation != null &&
-                      sub.explanation!.isNotEmpty) ...[
+                  if (sub.explanation != null && sub.explanation!.isNotEmpty) ...[
                     SizedBox(height: 10.h),
                     Container(
                       padding: EdgeInsets.all(12.w),
                       decoration: BoxDecoration(
                         color: const Color(0xFF5B93FF).withOpacity(0.07),
                         borderRadius: BorderRadius.circular(10.r),
-                        border: Border.all(
-                            color: const Color(0xFF5B93FF).withOpacity(0.2)),
+                        border: Border.all(color: const Color(0xFF5B93FF).withOpacity(0.2)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.lightbulb_outline,
-                                  color: const Color(0xFF5B93FF),
-                                  size: 16.sp),
+                              Icon(Icons.lightbulb_outline, color: const Color(0xFF5B93FF), size: 16.sp),
                               SizedBox(width: 6.w),
                               const CustomText(
                                 text: 'EXPLANATION',
@@ -1905,8 +1883,7 @@ Widget _buildQuestionWiseChart() {
     );
   }
 
-  Widget _sectionHeader(
-      IconData icon, String title, String subtitle, Color iconColor) {
+  Widget _sectionHeader(IconData icon, String title, String subtitle, Color iconColor) {
     return Row(
       children: [
         Container(

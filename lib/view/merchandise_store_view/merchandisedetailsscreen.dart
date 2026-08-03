@@ -246,7 +246,7 @@ class _MerchandiseDetailScreenState extends State<MerchandiseDetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Icon(
-                  Icons.monetization_on_outlined,
+                  Icons.currency_rupee,
                   size: 20.sp,
                   color: display.hasDiscount
                       ? Colors.green.shade700
@@ -457,9 +457,9 @@ class _MerchandiseDetailScreenState extends State<MerchandiseDetailScreen> {
                         : busy
                         ? 'Processing...'
 :display.hasDiscount
-    ? 'Get Now  •  ${display.pointsRequired} pts  |  ${display.effectivePrice}'
+    ? 'Get Now  •  ${display.pointsRequired} pts  |  ₹${display.effectivePrice}'
     : display.price > 0
-        ? 'Get Now  •  ${display.pointsRequired} pts  |  ${display.price}'
+        ? 'Get Now  •  ${display.pointsRequired} pts  |  ₹${display.price}'
         : 'Get Now  •  ${display.pointsRequired} pts',                    onTap: () {
                       if (!inStock || busy) return;
                       _showPaymentSheet(context, prov, display);
@@ -693,7 +693,7 @@ return DraggableScrollableSheet(
                 icon: Icons.account_balance_wallet_outlined,
                 color: Colors.green.shade600,
                 label: 'Wallet',
-                value: '${prov.monetaryBalance.toStringAsFixed(0)}',
+                value: '₹${prov.monetaryBalance.toStringAsFixed(0)}',
               ),
             ],
           ),
@@ -707,20 +707,20 @@ return DraggableScrollableSheet(
           weight: FontWeight.w700,
           color: const Color(0xFF1A1A2E),
         ),
-        // SizedBox(height: 10.h),
+        SizedBox(height: 10.h),
 
-        // _methodTile(
-        //   value: 'points',
-        //   icon: Icons.workspace_premium,
-        //   iconColor: Colors.amber.shade700,
-        //   title: 'Redeem Points',
-        //   subtitle:
-        //       'Use ${item.pointsRequired} pts  •  You have ${prov.totalPoints} pts',
-        //   enabled: prov.totalPoints >= item.pointsRequired,
-        //   disabledReason: prov.totalPoints < item.pointsRequired
-        //       ? 'Insufficient points'
-        //       : null,
-        // ),
+        _methodTile(
+          value: 'points',
+          icon: Icons.workspace_premium,
+          iconColor: Colors.amber.shade700,
+          title: 'Redeem Points',
+          subtitle:
+              'Use ${item.pointsRequired} pts  •  You have ${prov.totalPoints} pts',
+          enabled: prov.totalPoints >= item.pointsRequired,
+          disabledReason: prov.totalPoints < item.pointsRequired
+              ? 'Insufficient points'
+              : null,
+        ),
 
         SizedBox(height: 8.h),
 
@@ -731,35 +731,35 @@ return DraggableScrollableSheet(
             iconColor: Colors.green.shade600,
             title: 'Pay via Wallet',
             subtitle:
-'${coupon?.finalAmount ?? item.effectivePrice}  •  Balance ${prov.monetaryBalance.toStringAsFixed(0)}',
+'₹${coupon?.finalAmount ?? item.effectivePrice}  •  Balance ₹${prov.monetaryBalance.toStringAsFixed(0)}',
 enabled: prov.monetaryBalance >= (coupon?.finalAmount ?? item.effectivePrice),
             disabledReason: prov.monetaryBalance < (coupon?.finalAmount ?? item.effectivePrice)
     ? 'Insufficient wallet balance'
     : null,
           ),
 
-          // SizedBox(height: 8.h),
+          SizedBox(height: 8.h),
 
-//           _methodTile(
-//             value: 'razorpay',
-//             icon: Icons.credit_card_outlined,
-//             iconColor: Colors.blue.shade600,
-//             title: 'Pay via Card / UPI',
-//             subtitle:
-// '₹${coupon?.finalAmount ?? item.effectivePrice}  •  Cards, UPI, Net Banking',
-//             enabled: true,
-//           ),
+          _methodTile(
+            value: 'razorpay',
+            icon: Icons.credit_card_outlined,
+            iconColor: Colors.blue.shade600,
+            title: 'Pay via Card / UPI',
+            subtitle:
+'₹${coupon?.finalAmount ?? item.effectivePrice}  •  Cards, UPI, Net Banking',
+            enabled: true,
+          ),
 
           SizedBox(height: 20.h),
 
-          // CustomText(
-          //   text: 'Have a Coupon?',
-          //   size: 14,
-          //   weight: FontWeight.w700,
-          //   color: const Color(0xFF1A1A2E),
-          // ),
+          CustomText(
+            text: 'Have a Coupon?',
+            size: 14,
+            weight: FontWeight.w700,
+            color: const Color(0xFF1A1A2E),
+          ),
           SizedBox(height: 10.h),
-          // _couponRow(prov),
+          _couponRow(prov),
 
           if (coupon != null) ...[
             SizedBox(height: 10.h),
@@ -1108,7 +1108,7 @@ await prov.applyCoupon(context, code: code, amount: widget.item.effectivePrice);
               SizedBox(height: 4.h),
             Row(
   children: [
-    Icon(Icons.monetization_on_outlined, size: 12.sp,
+    Icon(Icons.currency_rupee, size: 12.sp,
         color: item.hasDiscount ? Colors.green.shade700 : drawerColor),
     if (item.hasDiscount) ...[
       Text(
@@ -1314,7 +1314,7 @@ await prov.applyCoupon(context, code: code, amount: widget.item.effectivePrice);
         Expanded(
           child: CustomText(
             text:
-                '${coupon.couponCode} applied — Save ${coupon.discountAmount}',
+                '${coupon.couponCode} applied — Save ₹${coupon.discountAmount}',
             size: 12,
             weight: FontWeight.w600,
             color: Colors.green.shade800,
@@ -1334,14 +1334,14 @@ Widget _priceSummary(MerchandiseItem item, MerchandiseCouponData? coupon) =>
       ),
       child: Column(
         children: [
-          _summaryRow('Item Price', '${item.originalPrice}', isTotal: false),
+          _summaryRow('Item Price', '₹${item.originalPrice}', isTotal: false),
 
           // Show offer/auto-discount if present
           if (item.hasDiscount) ...[
             SizedBox(height: 6.h),
             _summaryRow(
               'Offer Discount',
-              '-${item.originalPrice - item.effectivePrice}',
+              '-₹${item.originalPrice - item.effectivePrice}',
               isDiscount: true,
               isTotal: false,
             ),
@@ -1352,7 +1352,7 @@ Widget _priceSummary(MerchandiseItem item, MerchandiseCouponData? coupon) =>
             SizedBox(height: 6.h),
             _summaryRow(
               'Coupon (${coupon.couponCode})',
-              '-${coupon.discountAmount}',
+              '-₹${coupon.discountAmount}',
               isDiscount: true,
               isTotal: false,
             ),
@@ -1361,7 +1361,7 @@ Widget _priceSummary(MerchandiseItem item, MerchandiseCouponData? coupon) =>
           Divider(color: Colors.grey.shade200, height: 16.h),
           _summaryRow(
             'Total Payable',
-            '${coupon?.finalAmount ?? item.effectivePrice}',
+            '₹${coupon?.finalAmount ?? item.effectivePrice}',
             isTotal: true,
           ),
         ],
@@ -1467,9 +1467,9 @@ Widget _priceSummary(MerchandiseItem item, MerchandiseCouponData? coupon) =>
       case 'points':
         return 'Claim with ${widget.item.pointsRequired} pts';
       case 'wallet':
-        return 'Pay $_effectivePrice from Wallet';
+        return 'Pay ₹$_effectivePrice from Wallet';
       case 'razorpay':
-        return 'Pay $_effectivePrice via Card / UPI';
+        return 'Pay ₹$_effectivePrice via Card / UPI';
       default:
         return 'Continue';
     }

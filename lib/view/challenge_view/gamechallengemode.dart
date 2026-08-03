@@ -640,7 +640,7 @@ class _LevelCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 _meta(
                   Icons.sell_outlined,
-                  '₹${level.test?.price?.toString() ?? '0'}',
+                  '${level.test?.price?.toString() ?? '0'}',
                 ),
               ],
             ),

@@ -86,7 +86,7 @@ class _MerchandiseStoreScreenState extends State<MerchandiseStoreScreen> {
                           iconColor: Colors.greenAccent.shade200,
                           label: 'Wallet',
                           value:
-                              '${_formatDouble(provider.monetaryBalance)}',
+                              '₹${_formatDouble(provider.monetaryBalance)}',
                           suffix: '',
                         ),
 

@@ -1,10 +1,8 @@
 import 'package:firstedu/data/models/api_models/community_models/commentauthor.dart';
-import 'package:firstedu/res/constants/colors/appcolors.dart';
 import 'package:firstedu/view/indexscreen/communityscreen/blockusersheet.dart';
 import 'package:firstedu/view/indexscreen/communityscreen/newpostscreen.dart';
 import 'package:firstedu/data/models/api_models/community_models/communitypostmodels.dart'
     as api;
-import 'package:firstedu/view/indexscreen/communityscreen/reportbottomsheet.dart';
 import 'package:firstedu/view_models/authprovider/userSessionProvider.dart';
 import 'package:firstedu/view_models/communityprvider/commentprovider.dart';
 import 'package:firstedu/view_models/communityprvider/communityprovider.dart';
@@ -57,6 +55,32 @@ String _ini(String n) => n.trim().isEmpty
           .map((w) => w.isNotEmpty ? w[0].toUpperCase() : '')
           .join();
 
+// ══════════════════════════════════════════════════════════
+// ✅ Shared helper: wraps any bottom-sheet's content so it can
+// never overflow the screen — caps height + makes it scrollable.
+// Reused by the post menu, comment options, and reply options
+// sheets below, plus available for any future sheet in this file.
+// ══════════════════════════════════════════════════════════
+Widget _safeSheet(BuildContext context, {required List<Widget> children}) {
+  final maxSheetHeight = MediaQuery.of(context).size.height * 0.85;
+  return Container(
+    constraints: BoxConstraints(maxHeight: maxSheetHeight),
+    decoration: const BoxDecoration(
+      color: _white,
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    child: SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: children,
+        ),
+      ),
+    ),
+  );
+}
+
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});
   @override
@@ -77,7 +101,6 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
-  // ── FIX (setState-during-build): seed likes here, NOT in build() or initState of card ──
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -140,18 +163,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
         child: _CommentsSheet(post: p, accentColor: _tc(p.topic)),
       ),
     );
-    
   }
-  
 
   @override
   Widget build(BuildContext context) {
     final currentUserId = context.read<UserSessionProvider>().userId ?? '';
     final pv = context.watch<CommunityProvider>();
     final posts = _filter(pv.posts);
-
-    // ── FIX: removed addPostFrameCallback from build() — was causing
-    //    "setState() called during build" every frame ──
 
     return Scaffold(
       backgroundColor: _bg,
@@ -429,7 +447,6 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
   bool _showHeart = false;
   bool _showFullDescription = false;
 
-  // ── FIX (ownership): computed from widget props, no Provider needed ──
   bool get _isOwner =>
       widget.currentUserId.isNotEmpty &&
       widget.post.createdBy?.id == widget.currentUserId;
@@ -437,10 +454,6 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    // ── FIX (setState-during-build): DO NOT call seedForumLikes here.
-    //    Seeding happens in _CommunityScreenState.didChangeDependencies()
-    //    which runs after the build phase completes. Calling it here
-    //    triggers notifyListeners() mid-build causing the Flutter error.
 
     _lc = AnimationController(
       vsync: this,
@@ -506,79 +519,52 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
     final result = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (sheetCtx) => Container(
-        decoration: const BoxDecoration(
-          color: _white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                decoration: BoxDecoration(
-                  color: _border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-               if (_isOwner) ...[
-    ListTile(
-      leading: const Icon(Icons.edit_outlined),
-      title: const Text("Edit Post"),
-      onTap: () => Navigator.pop(sheetCtx, 'edit'),
-    ),
-
-    ListTile(
-      leading: const Icon(
-        Icons.delete_outline,
-        color: Colors.red,
-      ),
-      title: const Text("Delete Post"),
-      onTap: () => Navigator.pop(sheetCtx, 'delete'),
-    ),
-  ],
-
-  ListTile(
-    leading: const Icon(
-      Icons.block,
-      color: Colors.red,
-    ),
-    title: const Text("Block Content"),
-    onTap: () {
-      Navigator.pop(sheetCtx);
-
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: Colors.transparent,
-        isScrollControlled: true,
-        builder: (_) => const Blockusersheet(),
-      );
-    },
-  ),
-// SizedBox(height: 5,),
-//         ListTile(
-//     leading: const Icon(
-//       Icons.flag_outlined,
-//       color: Colors.orange,
-//     ),
-//     title: const Text("Report Post"),
-//     onTap: () {
-//       Navigator.pop(sheetCtx);
-
-//       showModalBottomSheet(
-//         context: context,
-//         backgroundColor: Colors.transparent,
-//         isScrollControlled: true,
-//         builder: (_) => const ReportPostBottomSheet(),
-//       );
-//     },
-//   ),
-        ],
+      // ✅ FIX: without this, the sheet is capped at 50% of screen height
+      // by default regardless of its actual content size.
+      isScrollControlled: true,
+      builder: (sheetCtx) => _safeSheet(
+        sheetCtx,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            decoration: BoxDecoration(
+              color: _border,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-        ),
+          if (_isOwner) ...[
+            ListTile(
+              leading: const Icon(Icons.edit_outlined),
+              title: const Text("Edit Post"),
+              onTap: () => Navigator.pop(sheetCtx, 'edit'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text("Delete Post"),
+              onTap: () => Navigator.pop(sheetCtx, 'delete'),
+            ),
+          ],
+          // ✅ Report/Block Content — passes post ID
+          ListTile(
+            leading: const Icon(Icons.flag_outlined, color: Colors.orange),
+            title: const Text("Block Content"),
+            onTap: () {
+              Navigator.pop(sheetCtx);
+
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (_) => Blockusersheet(
+                  postId: widget.post.id, // ✅ Pass post ID here
+                ),
+              );
+            },
+          ),
+          SizedBox(height: MediaQuery.of(sheetCtx).padding.bottom + 8),
+        ],
       ),
     );
 
@@ -707,7 +693,7 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
                               ConstrainedBox(
                                 constraints: const BoxConstraints(
                                   maxWidth: 100,
-                                ), // badge never exceeds this
+                                ),
                                 child: _Badge(p.topic, _color),
                               ),
                             ],
@@ -726,18 +712,17 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
                     ),
                   ),
 
-                  // ── FIX (ownership): three-dot ONLY shown to the post's author ──
-                 GestureDetector(
-  onTap: _openPostMenu,
-  child: Padding(
-    padding: const EdgeInsets.all(8),
-    child: Icon(
-      Icons.more_horiz_rounded,
-      color: _txtSec,
-      size: 22,
-    ),
-  ),
-),
+                  GestureDetector(
+                    onTap: _openPostMenu,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Icon(
+                        Icons.more_horiz_rounded,
+                        color: _txtSec,
+                        size: 22,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -941,7 +926,6 @@ class _PostCardState extends State<_PostCard> with TickerProviderStateMixin {
                         ],
                       ),
                     ),
-                    // ✅ FIXED: expandable description for image posts
                     if (p.description.isNotEmpty) ...[
                       const SizedBox(height: 3),
                       LayoutBuilder(
@@ -1180,49 +1164,43 @@ class _CommentsSheetState extends State<_CommentsSheet> {
     _ctrl.selection = TextSelection.collapsed(offset: _ctrl.text.length);
   }
 
-  // ── FIX (ownership): guard before showing sheet — only owner sees menu ──
   Future<void> _showCommentOptions(PostComment c) async {
     final userId = context.read<UserSessionProvider>().userId ?? '';
-    if (userId.isEmpty || c.author?.id != userId) return; // not your comment
+    if (userId.isEmpty || c.author?.id != userId) return;
 
     final cp = context.read<CommentProvider>();
     final result = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (sheetCtx) => Container(
-        decoration: const BoxDecoration(
-          color: _white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                decoration: BoxDecoration(
-                  color: _border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete_outline_rounded, color: _red),
-                title: Text(
-                  "Delete Comment",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: _red,
-                  ),
-                ),
-                onTap: () => Navigator.of(sheetCtx).pop('delete'),
-              ),
-              const SizedBox(height: 8),
-            ],
+      // ✅ FIX: added — previously missing, so this sheet was capped at
+      // 50% of screen height by default.
+      isScrollControlled: true,
+      builder: (sheetCtx) => _safeSheet(
+        sheetCtx,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            decoration: BoxDecoration(
+              color: _border,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-        ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline_rounded, color: _red),
+            title: Text(
+              "Delete Comment",
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: _red,
+              ),
+            ),
+            onTap: () => Navigator.of(sheetCtx).pop('delete'),
+          ),
+          SizedBox(height: MediaQuery.of(sheetCtx).padding.bottom + 8),
+        ],
       ),
     );
     if (!mounted || result != 'delete') return;
@@ -1271,49 +1249,42 @@ class _CommentsSheetState extends State<_CommentsSheet> {
     cp.deleteComment(context, postId: widget.post.id, commentId: c.id);
   }
 
-  // ── FIX (ownership): guard before showing sheet — only owner sees menu ──
   Future<void> _showReplyOptions(PostComment c, CommentReply r) async {
     final userId = context.read<UserSessionProvider>().userId ?? '';
-    if (userId.isEmpty || r.author?.id != userId) return; // not your reply
+    if (userId.isEmpty || r.author?.id != userId) return;
 
     final cp = context.read<CommentProvider>();
     final result = await showModalBottomSheet<String>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (sheetCtx) => Container(
-        decoration: const BoxDecoration(
-          color: _white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(top: 12, bottom: 8),
-                decoration: BoxDecoration(
-                  color: _border,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.delete_outline_rounded, color: _red),
-                title: Text(
-                  "Delete Reply",
-                  style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: _red,
-                  ),
-                ),
-                onTap: () => Navigator.of(sheetCtx).pop('delete'),
-              ),
-              const SizedBox(height: 8),
-            ],
+      // ✅ FIX: added — previously missing.
+      isScrollControlled: true,
+      builder: (sheetCtx) => _safeSheet(
+        sheetCtx,
+        children: [
+          Container(
+            width: 40,
+            height: 4,
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            decoration: BoxDecoration(
+              color: _border,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-        ),
+          ListTile(
+            leading: const Icon(Icons.delete_outline_rounded, color: _red),
+            title: Text(
+              "Delete Reply",
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: _red,
+              ),
+            ),
+            onTap: () => Navigator.of(sheetCtx).pop('delete'),
+          ),
+          SizedBox(height: MediaQuery.of(sheetCtx).padding.bottom + 8),
+        ],
       ),
     );
     if (!mounted || result != 'delete') return;
@@ -1659,7 +1630,6 @@ class _CT extends StatelessWidget {
   Widget build(BuildContext context) {
     final userId = context.read<UserSessionProvider>().userId ?? '';
     final liked = c.likes.contains(userId);
-    // ── FIX (ownership): three-dot visible only to comment owner ──
     final isOwner = userId.isNotEmpty && c.author?.id == userId;
     final isLiking = context.select<CommentProvider, bool>(
       (cp) => cp.isLikingComment(c.id),
@@ -1705,7 +1675,6 @@ class _CT extends StatelessWidget {
                           ),
                         ),
                       const Spacer(),
-                      // ── FIX: only show three-dot to this comment's owner ──
                       if (isOwner)
                         GestureDetector(
                           onTap: onMoreTap,
@@ -1842,7 +1811,6 @@ class _RT extends StatelessWidget {
   Widget build(BuildContext context) {
     final userId = context.read<UserSessionProvider>().userId ?? '';
     final liked = r.likes.contains(userId);
-    // ── FIX (ownership): three-dot visible only to reply owner ──
     final isOwner = userId.isNotEmpty && r.author?.id == userId;
     final isLiking = context.select<CommentProvider, bool>(
       (cp) => cp.isLikingReply(r.id),
@@ -1888,7 +1856,6 @@ class _RT extends StatelessWidget {
                           ),
                         ),
                       const Spacer(),
-                      // ── FIX: only show three-dot to this reply's owner ──
                       if (isOwner)
                         GestureDetector(
                           onTap: onMoreTap,

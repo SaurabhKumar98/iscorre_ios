@@ -328,7 +328,7 @@ class _LiveCompetitionPaymentSheetState
                 ),
                 const Spacer(),
                 Text(
-                  '₹${_originalPrice.toStringAsFixed(0)}',
+                  '${_originalPrice.toStringAsFixed(0)}',
                   style: TextStyle(
                     fontSize: 13.sp,
                     color: Colors.black38,
@@ -349,7 +349,7 @@ class _LiveCompetitionPaymentSheetState
                   ),
                 ),
                 Text(
-                  '- ₹${_discountAmount.toStringAsFixed(0)}',
+                  '- ${_discountAmount.toStringAsFixed(0)}',
                   style: TextStyle(fontSize: 13.sp, color: Colors.green[700]),
                 ),
               ],
@@ -383,7 +383,7 @@ class _LiveCompetitionPaymentSheetState
                 ),
                 const Spacer(),
                 Text(
-                  '- ₹$couponDiscount',
+                  '- $couponDiscount',
                   style: TextStyle(fontSize: 13.sp, color: Colors.green[700]),
                 ),
               ],
@@ -407,7 +407,7 @@ class _LiveCompetitionPaymentSheetState
               ),
               const Spacer(),
               Text(
-                finalPrice == 0 ? 'FREE' : '₹$finalPrice',
+                finalPrice == 0 ? 'FREE' : '$finalPrice',
                 style: TextStyle(
                   fontSize: 20.sp,
                   fontWeight: FontWeight.w800,
@@ -595,7 +595,7 @@ class _LiveCompetitionPaymentSheetState
               SizedBox(width: 5.w),
               Expanded(
                 child: Text(
-                  'Coupon applied! You saved ₹${provider.appliedCoupon?.discount ?? 0}',
+                  'Coupon applied! You saved ${provider.appliedCoupon?.discount ?? 0}',
                   style: TextStyle(
                     fontSize: 11.sp,
                     color: Colors.green[700],
@@ -690,7 +690,7 @@ class _LiveCompetitionPaymentSheetState
                     SizedBox(width: 8.w),
                     Text(
                       // FIX: show correct price from megaAudition
-                      isFreeOrZero ? 'Register Free' : 'Pay ₹$finalPrice',
+                      isFreeOrZero ? 'Register Free' : 'Pay $finalPrice',
                       style: TextStyle(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,

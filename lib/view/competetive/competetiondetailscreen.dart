@@ -320,7 +320,7 @@ class _CompetitionDetailScreenState extends State<CompetitionDetailScreen> {
                                     ] else if (data.node?.upgradable ==
                                         true) ...[
                                       Text(
-                                        'Access Bundle: ${data.node?.upgradeCost}',
+                                        'Upgrade: ₹${data.node?.upgradeCost}',
                                         style: GoogleFonts.poppins(
                                           fontSize: 13,
                                           color: Colors.orange.shade300,
@@ -329,7 +329,7 @@ class _CompetitionDetailScreenState extends State<CompetitionDetailScreen> {
                                       ),
                                     ] else ...[
                                       Text(
-                                        '${data.node?.effectivePrice}',
+                                        '₹${data.node?.effectivePrice}',
                                         style: GoogleFonts.poppins(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
@@ -340,7 +340,7 @@ class _CompetitionDetailScreenState extends State<CompetitionDetailScreen> {
                                           (data.node?.effectivePrice ?? 0)) ...[
                                         const SizedBox(width: 8),
                                         Text(
-                                          '${data.node?.price}',
+                                          '₹${data.node?.price}',
                                           style: GoogleFonts.poppins(
                                             fontSize: 13,
                                             color: Colors.white54,
@@ -512,7 +512,7 @@ class _CompetitionDetailScreenState extends State<CompetitionDetailScreen> {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    '${data.node!.appliedOffer!.offerName} — ${data.node!.appliedOffer!.discountValue} off',
+                                    '${data.node!.appliedOffer!.offerName} — ₹${data.node!.appliedOffer!.discountValue} off',
                                     style: GoogleFonts.poppins(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -1090,14 +1090,14 @@ class _SubCategoryCard extends StatelessWidget {
                     if (discountAmount > 0)
                       _chip(
                         Icons.discount_rounded,
-                        '$discountAmount off',
+                        '₹$discountAmount off',
                         Colors.green.shade700,
                         Colors.green.shade50,
                       ),
                     if (paidSoFar > 0)
                       _chip(
                         Icons.payment_rounded,
-                        'Paid $paidSoFar',
+                        'Paid ₹$paidSoFar',
                         Colors.indigo.shade600,
                         Colors.indigo.shade50,
                       ),
@@ -1135,7 +1135,7 @@ class _SubCategoryCard extends StatelessWidget {
                       children: [
                         if (!hasAccess && !isFree && !isUpgradable)
                           _actionBtn(
-                            ' Take Test',
+                            'Buy',
                             accentColor,
                             Icons.shopping_cart_rounded,
                             () {
@@ -1144,7 +1144,7 @@ class _SubCategoryCard extends StatelessWidget {
                           ),
                         if (isUpgradable)
                           _actionBtn(
-                            'Access Bundle',
+                            'Upgrade',
                             const Color(0xFFEA580C),
                             Icons.upgrade_rounded,
                             () {
@@ -1210,7 +1210,7 @@ class _SubCategoryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '$paidSoFar paid',
+            '₹$paidSoFar paid',
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -1219,7 +1219,7 @@ class _SubCategoryCard extends StatelessWidget {
           ),
           if (isUpgradable && upgradeCost > 0)
             Text(
-              'Access Bundle: $upgradeCost',
+              'Upgrade: ₹$upgradeCost',
               style: GoogleFonts.poppins(
                 fontSize: 11,
                 color: Colors.orange.shade700,
@@ -1234,7 +1234,7 @@ class _SubCategoryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Access Bundle: $upgradeCost',
+            'Upgrade: ₹$upgradeCost',
             style: GoogleFonts.poppins(
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -1243,7 +1243,7 @@ class _SubCategoryCard extends StatelessWidget {
           ),
           if (paidSoFar > 0)
             Text(
-              'Paid so far: $paidSoFar',
+              'Paid so far: ₹$paidSoFar',
               style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey[500]),
             ),
         ],
@@ -1255,7 +1255,7 @@ class _SubCategoryCard extends StatelessWidget {
         Row(
           children: [
             Text(
-              '$price',
+              '₹$price',
               style: GoogleFonts.poppins(
                 fontSize: 17,
                 fontWeight: FontWeight.w800,
@@ -1265,7 +1265,7 @@ class _SubCategoryCard extends StatelessWidget {
             if (originalPrice > price) ...[
               const SizedBox(width: 6),
               Text(
-                '$originalPrice',
+                '₹$originalPrice',
                 style: GoogleFonts.poppins(
                   fontSize: 12,
                   decoration: TextDecoration.lineThrough,
@@ -1277,7 +1277,7 @@ class _SubCategoryCard extends StatelessWidget {
         ),
         if (discountAmount > 0)
           Text(
-            'Save $discountAmount',
+            'Save ₹$discountAmount',
             style: GoogleFonts.poppins(
               fontSize: 10,
               color: Colors.green.shade600,

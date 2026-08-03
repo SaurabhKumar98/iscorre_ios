@@ -11,6 +11,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  ROTATION-SAFE SIZING CONSTANTS
+// ─────────────────────────────────────────────────────────────────────────────
+const double _kTabRowHeight = 48.0;
+const double _kChipRowHeight = 36.0;
+const double _kChipVerticalPadding = 8.0;
+const double _kTabVerticalPadding = 10.0;
+
 class LeaderboardsScreen extends StatefulWidget {
   const LeaderboardsScreen({super.key});
 
@@ -19,15 +27,16 @@ class LeaderboardsScreen extends StatefulWidget {
 }
 
 class _LeaderboardsScreenState extends State<LeaderboardsScreen> {
-@override
-void initState() {
-  super.initState();
-  Future.microtask(() {
-    final provider = context.read<LeaderboardProvider>();
-    provider.fetchCategories(context);   // ← fetch categories
-    provider.fetchEvents(context);
-  });
-}
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      final provider = context.read<LeaderboardProvider>();
+      provider.fetchCategories(context);
+      provider.fetchEvents(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,37 +47,25 @@ void initState() {
             title: "Leaderboards",
             subtitle: "View rankings by performance, participation, and scores",
           ),
-
           SliverPadding(
             padding: EdgeInsets.symmetric(vertical: 16.h),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const BubbleHeaderCard(
                   title: "Leaderboards",
-                  subtitle:
-                      "View rankings by performance, participation, and scores",
+                  subtitle: "View rankings by performance, participation, and scores",
                   icon: Icons.emoji_events_rounded,
                   backgroundColor: drawerColor,
                   iconColor: Colors.amber,
                 ),
-
                 SizedBox(height: 20.h),
-
-                // ── Type Tabs ──────────────────────────────────────
                 _TypeTabs(),
-SizedBox(height: 12.h),
-_CategoryChips(),          // ← add this
-// SizedBox(height: 12.h),
+                SizedBox(height: 12.h),
+                _CategoryChips(),
                 SizedBox(height: 20.h),
-
-                // ── Event Selector Button ──────────────────────────
                 _EventSelectorButton(),
-
                 SizedBox(height: 20.h),
-
-                // ── Leaderboard Content ────────────────────────────
                 _LeaderboardContent(),
-
                 SizedBox(height: 80.h),
               ]),
             ),
@@ -80,31 +77,15 @@ _CategoryChips(),          // ← add this
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  TYPE TABS  (Olympiads / Tournaments)
+//  TYPE TABS
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _TypeTabs extends StatelessWidget {
   final tabs = const [
-    {
-      'label': 'Olympiads',
-      'icon': Icons.emoji_events_outlined,
-      'type': 'olympiad',
-    },
-    {
-      'label': 'Tournaments',
-      'icon': Icons.sports_esports_outlined,
-      'type': 'tournament',
-    },
-    {
-      'label': 'Test',
-      'icon': Icons.sports_esports_outlined,
-      'type': 'standalone_test',
-    },
-    {
-      'label': 'Challenge',
-      'icon': Icons.sports_esports_outlined,
-      'type': 'challenge',
-    },
+    {'label': 'Olympiads', 'icon': Icons.emoji_events_outlined, 'type': 'olympiad'},
+    {'label': 'Tournaments', 'icon': Icons.sports_esports_outlined, 'type': 'tournament'},
+    {'label': 'Test', 'icon': Icons.sports_esports_outlined, 'type': 'standalone_test'},
+    {'label': 'Challenge', 'icon': Icons.sports_esports_outlined, 'type': 'challenge'},
   ];
 
   @override
@@ -112,7 +93,7 @@ class _TypeTabs extends StatelessWidget {
     final provider = context.watch<LeaderboardProvider>();
 
     return SizedBox(
-      height: 48.h,
+      height: _kTabRowHeight,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -125,7 +106,10 @@ class _TypeTabs extends StatelessWidget {
             onTap: () => provider.setType(context, tab['type'] as String),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: _kTabVerticalPadding,
+              ),
               decoration: BoxDecoration(
                 color: isSelected ? drawerColor : Colors.white,
                 borderRadius: BorderRadius.circular(12.r),
@@ -168,7 +152,7 @@ class _TypeTabs extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  EVENT SELECTOR BUTTON  (opens bottom sheet)
+//  EVENT SELECTOR BUTTON (FIXED OVERFLOW)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _EventSelectorButton extends StatelessWidget {
@@ -180,9 +164,7 @@ class _EventSelectorButton extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: GestureDetector(
-        onTap: provider.isListLoading
-            ? null
-            : () => _showEventPicker(context, provider),
+        onTap: provider.isListLoading ? null : () => _showEventPicker(context, provider),
         child: Container(
           padding: EdgeInsets.all(16.w),
           decoration: BoxDecoration(
@@ -219,35 +201,38 @@ class _EventSelectorButton extends StatelessWidget {
                         style: TextStyle(fontSize: 13.sp, color: Colors.grey),
                       )
                     : event == null
-                    ? Text(
-                        "Select an event",
-                        style: TextStyle(fontSize: 13.sp, color: Colors.grey),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            event.title ?? '',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (event.stage != null) ...[
-                            SizedBox(height: 2.h),
-                            Text(
-                              'Stage: ${event.stage}',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                color: Colors.grey.shade600,
+                        ? Text(
+                            "Select an event",
+                            style: TextStyle(fontSize: 13.sp, color: Colors.grey),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                event.title ?? '',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.black87,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        ],
-                      ),
+                              if (event.stage != null) ...[
+                                SizedBox(height: 2.h),
+                                Text(
+                                  'Stage: ${event.stage}',
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ],
+                          ),
               ),
               Icon(
                 Icons.keyboard_arrow_down_rounded,
@@ -280,7 +265,7 @@ class _EventSelectorButton extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  EVENT PICKER BOTTOM SHEET
+//  EVENT PICKER BOTTOM SHEET (FIXED)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _EventPickerSheet extends StatelessWidget {
@@ -298,8 +283,11 @@ class _EventPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final sheetMaxHeight = (screenHeight * 0.7).clamp(280.0, 640.0);
+
     return Container(
-      constraints: BoxConstraints(maxHeight: 70.sh),
+      constraints: BoxConstraints(maxHeight: sheetMaxHeight),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
@@ -307,7 +295,6 @@ class _EventPickerSheet extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle
           SizedBox(height: 12.h),
           Center(
             child: Container(
@@ -320,8 +307,6 @@ class _EventPickerSheet extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.h),
-
-          // Title
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Row(
@@ -343,11 +328,8 @@ class _EventPickerSheet extends StatelessWidget {
               ],
             ),
           ),
-
           SizedBox(height: 16.h),
           Divider(color: Colors.grey.shade100, height: 1),
-
-          // List
           Flexible(
             child: ListView.separated(
               shrinkWrap: true,
@@ -372,9 +354,7 @@ class _EventPickerSheet extends StatelessWidget {
                     duration: const Duration(milliseconds: 180),
                     padding: EdgeInsets.all(14.w),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? drawerColor.withOpacity(0.07)
-                          : Colors.grey.shade50,
+                      color: isSelected ? drawerColor.withOpacity(0.07) : Colors.grey.shade50,
                       borderRadius: BorderRadius.circular(14.r),
                       border: Border.all(
                         color: isSelected ? drawerColor : Colors.grey.shade200,
@@ -387,9 +367,7 @@ class _EventPickerSheet extends StatelessWidget {
                           width: 38.w,
                           height: 38.w,
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? drawerColor
-                                : Colors.grey.shade200,
+                            color: isSelected ? drawerColor : Colors.grey.shade200,
                             borderRadius: BorderRadius.circular(10.r),
                           ),
                           child: Icon(
@@ -397,15 +375,14 @@ class _EventPickerSheet extends StatelessWidget {
                                 ? Icons.sports_esports_outlined
                                 : Icons.emoji_events_outlined,
                             size: 18.sp,
-                            color: isSelected
-                                ? Colors.white
-                                : Colors.grey.shade600,
+                            color: isSelected ? Colors.white : Colors.grey.shade600,
                           ),
                         ),
                         SizedBox(width: 12.w),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
                                 event.title ?? '',
@@ -424,6 +401,8 @@ class _EventPickerSheet extends StatelessWidget {
                                     fontSize: 11.sp,
                                     color: Colors.grey.shade500,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               if (event.totalParticipants != null)
                                 Text(
@@ -432,6 +411,8 @@ class _EventPickerSheet extends StatelessWidget {
                                     fontSize: 11.sp,
                                     color: Colors.grey.shade500,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                             ],
                           ),
@@ -456,7 +437,7 @@ class _EventPickerSheet extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  LEADERBOARD CONTENT  (podium + rows)
+//  LEADERBOARD CONTENT (FIXED OVERFLOW)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _LeaderboardContent extends StatelessWidget {
@@ -476,6 +457,7 @@ class _LeaderboardContent extends StatelessWidget {
         padding: EdgeInsets.only(top: 40.h),
         child: Center(
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.leaderboard_outlined,
@@ -501,8 +483,8 @@ class _LeaderboardContent extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Event title
           Text(
             provider.selectedEvent!.title ?? '',
             style: TextStyle(
@@ -510,23 +492,21 @@ class _LeaderboardContent extends StatelessWidget {
               fontWeight: FontWeight.w800,
               color: const Color(0xFF1A1D26),
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           if (provider.selectedEvent!.stage != null) ...[
             SizedBox(height: 4.h),
             Text(
               'Stage: ${provider.selectedEvent!.stage}',
               style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade500),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
-
           SizedBox(height: 24.h),
-
-          // ── PODIUM (top 3) ───────────────────────────────────
           if (top3.isNotEmpty) PodiumWidget(top3: top3),
-
           SizedBox(height: 20.h),
-
-          // ── RANKED LIST (4th onwards) ────────────────────────
           if (rest.isNotEmpty) ...[
             Container(
               decoration: BoxDecoration(
@@ -541,21 +521,14 @@ class _LeaderboardContent extends StatelessWidget {
                 ],
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Table header
                   Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 12.h,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade50,
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(16.r),
-                      ),
-                      border: Border(
-                        bottom: BorderSide(color: Colors.grey.shade200),
-                      ),
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
+                      border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
                     ),
                     child: Row(
                       children: [
@@ -607,8 +580,6 @@ class _LeaderboardContent extends StatelessWidget {
                       ],
                     ),
                   ),
-
-                  // Rows
                   ...rest.asMap().entries.map(
                     (e) => _RankedRow(
                       entry: e.value,
@@ -626,10 +597,8 @@ class _LeaderboardContent extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  PODIUM  (1st, 2nd, 3rd)
+//  PODIUM WIDGET (FIXED OVERFLOW)
 // ─────────────────────────────────────────────────────────────────────────────
-
-// lib/view/leaderboardscreen/widgets/podium_widget.dart
 
 class PodiumWidget extends StatelessWidget {
   final List<LeaderboardEntry> top3;
@@ -642,10 +611,8 @@ class PodiumWidget extends StatelessWidget {
     final third = top3.length > 2 ? top3[2] : null;
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.fromLTRB(16.w, 20.h, 16.w, 0),
+      padding: EdgeInsets.fromLTRB(12.w, 20.h, 12.w, 0),
       decoration: BoxDecoration(
-        // Deep navy gradient background
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -654,8 +621,8 @@ class PodiumWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(24.r),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Header ───────────────────────────────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -674,43 +641,40 @@ class PodiumWidget extends StatelessWidget {
               _starIcon(size: 14.sp, color: const Color(0xFFFFD700)),
             ],
           ),
-
-          SizedBox(height: 24.h),
-
-          // ── Podium Row: 2nd | 1st | 3rd ──────────────────────
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // 2nd
-              Expanded(
-                child: _PodiumSlot(
-                  entry: second,
-                  rank: 2,
-                  avatarSize: 52.w,
-                  podiumHeight: 64.h,
+          SizedBox(height: 20.h),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: _PodiumSlot(
+                    entry: second,
+                    rank: 2,
+                    avatarSize: 48.w,
+                    podiumHeight: 60.h,
+                  ),
                 ),
-              ),
-              // 1st (center, taller)
-              Expanded(
-                child: _PodiumSlot(
-                  entry: first,
-                  rank: 1,
-                  avatarSize: 64.w,
-                  podiumHeight: 90.h,
-                  isFirst: true,
+                Expanded(
+                  child: _PodiumSlot(
+                    entry: first,
+                    rank: 1,
+                    avatarSize: 60.w,
+                    podiumHeight: 84.h,
+                    isFirst: true,
+                  ),
                 ),
-              ),
-              // 3rd
-              Expanded(
-                child: _PodiumSlot(
-                  entry: third,
-                  rank: 3,
-                  avatarSize: 52.w,
-                  podiumHeight: 50.h,
+                Expanded(
+                  child: _PodiumSlot(
+                    entry: third,
+                    rank: 3,
+                    avatarSize: 48.w,
+                    podiumHeight: 46.h,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          SizedBox(height: 12.h),
         ],
       ),
     );
@@ -722,7 +686,7 @@ class PodiumWidget extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  PODIUM SLOT
+//  PODIUM SLOT (FIXED)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PodiumSlot extends StatelessWidget {
@@ -739,8 +703,6 @@ class _PodiumSlot extends StatelessWidget {
     required this.podiumHeight,
     this.isFirst = false,
   });
-
-  // ── Medal colors ──────────────────────────────────────────────
 
   Color get _medalGold => const Color(0xFFFFD700);
   Color get _medalSilver => const Color(0xFFCDD0DA);
@@ -772,10 +734,7 @@ class _PodiumSlot extends StatelessWidget {
 
   String _initials(String name) {
     final parts = name.trim().split(' ');
-    return parts
-        .take(2)
-        .map((w) => w.isNotEmpty ? w[0].toUpperCase() : '')
-        .join();
+    return parts.take(2).map((w) => w.isNotEmpty ? w[0].toUpperCase() : '').join();
   }
 
   @override
@@ -787,16 +746,14 @@ class _PodiumSlot extends StatelessWidget {
     final maxScore = entry!.maxScore ?? 100;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        // ── Crown for 1st ──────────────────────────────────────
         if (isFirst) ...[
           _CrownIcon(color: _medalGold),
           SizedBox(height: 4.h),
         ] else
-          SizedBox(height: isFirst ? 0 : 28.h),
-
-        // ── Avatar ─────────────────────────────────────────────
+          SizedBox(height: 28.h),
         Stack(
           alignment: Alignment.bottomCenter,
           clipBehavior: Clip.none,
@@ -838,8 +795,6 @@ class _PodiumSlot extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Rank badge on avatar bottom
             Positioned(
               bottom: -8.h,
               child: Container(
@@ -860,9 +815,7 @@ class _PodiumSlot extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 8.sp,
                     fontWeight: FontWeight.w900,
-                    color: rank == 1
-                        ? const Color(0xFF1A1500)
-                        : const Color(0xFF1A1D26),
+                    color: rank == 1 ? const Color(0xFF1A1500) : const Color(0xFF1A1D26),
                     letterSpacing: 0.8,
                   ),
                 ),
@@ -870,10 +823,7 @@ class _PodiumSlot extends StatelessWidget {
             ),
           ],
         ),
-
-        SizedBox(height: 14.h),
-
-        // ── Name ───────────────────────────────────────────────
+        SizedBox(height: 12.h),
         Text(
           name.split(' ').first,
           style: TextStyle(
@@ -885,10 +835,7 @@ class _PodiumSlot extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
         ),
-
-        SizedBox(height: 3.h),
-
-        // ── Score ──────────────────────────────────────────────
+        SizedBox(height: 2.h),
         Text(
           '$score/$maxScore',
           style: TextStyle(
@@ -897,10 +844,7 @@ class _PodiumSlot extends StatelessWidget {
             color: _primaryColor.withOpacity(0.85),
           ),
         ),
-
-        SizedBox(height: 10.h),
-
-        // ── Podium block ───────────────────────────────────────
+        SizedBox(height: 8.h),
         Container(
           width: double.infinity,
           height: podiumHeight,
@@ -914,27 +858,19 @@ class _PodiumSlot extends StatelessWidget {
               topLeft: Radius.circular(isFirst ? 10.r : 8.r),
               topRight: Radius.circular(isFirst ? 10.r : 8.r),
             ),
-            // ✅ Uniform color — no crash
             border: Border.all(
               color: _primaryColor.withOpacity(0.4),
               width: isFirst ? 2 : 1.5,
             ),
           ),
           child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [_MedalIcon(rank: rank, size: isFirst ? 22.sp : 18.sp)],
-            ),
+            child: _MedalIcon(rank: rank, size: isFirst ? 22.sp : 18.sp),
           ),
         ),
       ],
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  CROWN  (1st place only)
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _CrownIcon extends StatelessWidget {
   final Color color;
@@ -950,10 +886,6 @@ class _CrownIcon extends StatelessWidget {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────────────────────────
-//  MEDAL ICON
-// ─────────────────────────────────────────────────────────────────────────────
 
 class _MedalIcon extends StatelessWidget {
   final int rank;
@@ -979,8 +911,9 @@ class _MedalIcon extends StatelessWidget {
     return Icon(icon, color: color, size: size);
   }
 }
+
 // ─────────────────────────────────────────────────────────────────────────────
-//  RANKED ROW  (4th onwards)
+//  RANKED ROW (FIXED)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _RankedRow extends StatelessWidget {
@@ -994,26 +927,19 @@ class _RankedRow extends StatelessWidget {
     final rank = entry.rank ?? 0;
     final score = entry.score ?? 0;
     final maxScore = entry.maxScore ?? 100;
-    final perf = maxScore > 0
-        ? '${(score / maxScore * 100).toStringAsFixed(0)}%'
-        : '—';
+    final perf = maxScore > 0 ? '${(score / maxScore * 100).toStringAsFixed(0)}%' : '—';
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: isLast
-            ? BorderRadius.vertical(bottom: Radius.circular(16.r))
-            : BorderRadius.zero,
+        borderRadius: isLast ? BorderRadius.vertical(bottom: Radius.circular(16.r)) : BorderRadius.zero,
         border: Border(
-          bottom: isLast
-              ? BorderSide.none
-              : BorderSide(color: Colors.grey.shade100),
+          bottom: isLast ? BorderSide.none : BorderSide(color: Colors.grey.shade100),
         ),
       ),
       child: Row(
         children: [
-          // Rank badge
           Container(
             width: 28.w,
             height: 28.w,
@@ -1033,8 +959,6 @@ class _RankedRow extends StatelessWidget {
               ),
             ),
           ),
-
-          // Name
           Expanded(
             child: Text(
               entry.name ?? '—',
@@ -1047,8 +971,6 @@ class _RankedRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-
-          // Score
           SizedBox(
             width: 55.w,
             child: Text(
@@ -1059,10 +981,10 @@ class _RankedRow extends StatelessWidget {
                 fontWeight: FontWeight.w700,
                 color: Colors.black87,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-
-          // Performance %
           SizedBox(
             width: 55.w,
             child: Text(
@@ -1073,6 +995,8 @@ class _RankedRow extends StatelessWidget {
                 fontWeight: FontWeight.w600,
                 color: drawerColor,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -1080,12 +1004,9 @@ class _RankedRow extends StatelessWidget {
     );
   }
 }
-// ─────────────────────────────────────────────────────────────────────────────
-//  CATEGORY CHIPS  (with subcategory expansion)
-// ─────────────────────────────────────────────────────────────────────────────
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  CATEGORY CHIPS  (matches Store screen pattern)
+//  CATEGORY CHIPS (FIXED OVERFLOW)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _CategoryChips extends StatelessWidget {
@@ -1095,7 +1016,7 @@ class _CategoryChips extends StatelessWidget {
 
     if (provider.isCategoryLoading) {
       return SizedBox(
-        height: 36.h,
+        height: _kChipRowHeight,
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -1121,13 +1042,13 @@ class _CategoryChips extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        // ── Active category badge ─────────────────────────────────
         if (provider.selectedCategory != null)
           Padding(
             padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 8.h),
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: drawerColor.withOpacity(0.06),
                 borderRadius: BorderRadius.circular(12.r),
@@ -1145,13 +1066,14 @@ class _CategoryChips extends StatelessWidget {
                         color: drawerColor,
                         fontWeight: FontWeight.w600,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   GestureDetector(
                     onTap: () => provider.clearCategoryFilter(context),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 10.w, vertical: 4.h),
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
                         borderRadius: BorderRadius.circular(20.r),
@@ -1159,8 +1081,7 @@ class _CategoryChips extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.close_rounded,
-                              size: 11.sp, color: Colors.red.shade400),
+                          Icon(Icons.close_rounded, size: 11.sp, color: Colors.red.shade400),
                           SizedBox(width: 3.w),
                           Text(
                             "Clear",
@@ -1178,17 +1099,14 @@ class _CategoryChips extends StatelessWidget {
               ),
             ),
           ),
-
-        // ── Chips row ─────────────────────────────────────────────
         SizedBox(
-          height: 36.h,
+          height: _kChipRowHeight,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             itemCount: provider.categories.length + 1,
             separatorBuilder: (_, __) => SizedBox(width: 8.w),
             itemBuilder: (context, index) {
-              // "All" chip
               if (index == 0) {
                 final isSelected = provider.selectedCategory == null;
                 return _chip(
@@ -1198,9 +1116,7 @@ class _CategoryChips extends StatelessWidget {
                   onTap: () => provider.clearCategoryFilter(context),
                 );
               }
-
               final cat = provider.categories[index - 1];
-              // A parent is highlighted if it or any of its children is selected
               final isSelected = provider.selectedCategory?.id == cat.id ||
                   cat.children.any((c) => c.id == provider.selectedCategory?.id);
 
@@ -1233,7 +1149,10 @@ class _CategoryChips extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        padding: EdgeInsets.symmetric(
+          horizontal: 14.w,
+          vertical: _kChipVerticalPadding,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? drawerColor : Colors.white,
           borderRadius: BorderRadius.circular(14.r),
@@ -1253,12 +1172,17 @@ class _CategoryChips extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : drawerColor,
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 160.w),
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w500,
+                  color: isSelected ? Colors.white : drawerColor,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             if (hasChildren) ...[
@@ -1302,7 +1226,7 @@ class _CategoryChips extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  LEADERBOARD CATEGORY SHEET  (expandable tree — same as store)
+//  LEADERBOARD CATEGORY SHEET (FIXED)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _LeaderboardCategorySheet extends StatefulWidget {
@@ -1321,18 +1245,15 @@ class _LeaderboardCategorySheet extends StatefulWidget {
   });
 
   @override
-  State<_LeaderboardCategorySheet> createState() =>
-      _LeaderboardCategorySheetState();
+  State<_LeaderboardCategorySheet> createState() => _LeaderboardCategorySheetState();
 }
 
-class _LeaderboardCategorySheetState
-    extends State<_LeaderboardCategorySheet> {
+class _LeaderboardCategorySheetState extends State<_LeaderboardCategorySheet> {
   final Set<String> _expandedIds = {};
 
   @override
   void initState() {
     super.initState();
-    // Auto-expand the tapped root category
     if (widget.rootCategory.id != null) {
       _expandedIds.add(widget.rootCategory.id!);
     }
@@ -1340,18 +1261,18 @@ class _LeaderboardCategorySheetState
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final sheetMaxHeight = (screenHeight * 0.75).clamp(280.0, 700.0);
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
       ),
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.75,
-      ),
+      constraints: BoxConstraints(maxHeight: sheetMaxHeight),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle
           SizedBox(height: 12.h),
           Center(
             child: Container(
@@ -1364,8 +1285,6 @@ class _LeaderboardCategorySheetState
             ),
           ),
           SizedBox(height: 16.h),
-
-          // Header row
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 20.w),
             child: Row(
@@ -1380,14 +1299,15 @@ class _LeaderboardCategorySheetState
                       fontWeight: FontWeight.w700,
                       color: drawerColor,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (widget.provider.selectedCategory != null)
                   GestureDetector(
                     onTap: widget.onClear,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 10.w, vertical: 6.h),
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
                         borderRadius: BorderRadius.circular(8.r),
@@ -1407,19 +1327,14 @@ class _LeaderboardCategorySheetState
           ),
           SizedBox(height: 12.h),
           Divider(height: 1, color: Colors.grey.shade100),
-
-          // Tree list
           Flexible(
             child: ListView.builder(
               shrinkWrap: true,
-              padding:
-                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               itemCount: widget.allCategories.length,
-              itemBuilder: (_, i) =>
-                  _buildNode(widget.allCategories[i], depth: 0),
+              itemBuilder: (_, i) => _buildNode(widget.allCategories[i], depth: 0),
             ),
           ),
-
           SizedBox(height: MediaQuery.of(context).padding.bottom + 16.h),
         ],
       ),
@@ -1438,9 +1353,7 @@ class _LeaderboardCategorySheetState
           onTap: () {
             if (hasChildren) {
               setState(() {
-                isExpanded
-                    ? _expandedIds.remove(cat.id)
-                    : _expandedIds.add(cat.id!);
+                isExpanded ? _expandedIds.remove(cat.id) : _expandedIds.add(cat.id!);
               });
             } else {
               widget.onSelect(cat);
@@ -1455,14 +1368,11 @@ class _LeaderboardCategorySheetState
               bottom: 12.h,
             ),
             decoration: BoxDecoration(
-              color: isSelected
-                  ? drawerColor.withOpacity(0.07)
-                  : Colors.transparent,
+              color: isSelected ? drawerColor.withOpacity(0.07) : Colors.transparent,
               borderRadius: BorderRadius.circular(10.r),
             ),
             child: Row(
               children: [
-                // Bullet for children
                 if (depth > 0) ...[
                   Container(
                     width: 6.w,
@@ -1470,9 +1380,7 @@ class _LeaderboardCategorySheetState
                     margin: EdgeInsets.only(right: 10.w),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isSelected
-                          ? drawerColor
-                          : Colors.grey.shade300,
+                      color: isSelected ? drawerColor : Colors.grey.shade300,
                     ),
                   ),
                 ],
@@ -1481,24 +1389,16 @@ class _LeaderboardCategorySheetState
                     cat.name ?? '',
                     style: TextStyle(
                       fontSize: depth == 0 ? 14.sp : 13.sp,
-                      fontWeight: depth == 0
-                          ? FontWeight.w700
-                          : isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                      color: isSelected
-                          ? drawerColor
-                          : depth == 0
-                              ? Colors.black87
-                              : Colors.grey.shade700,
+                      fontWeight: depth == 0 ? FontWeight.w700 : isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isSelected ? drawerColor : depth == 0 ? Colors.black87 : Colors.grey.shade700,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 if (hasChildren) ...[
-                  // Children count badge
                   Container(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 7.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 2.h),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(20.r),
@@ -1524,14 +1424,11 @@ class _LeaderboardCategorySheetState
                   ),
                 ],
                 if (!hasChildren && isSelected)
-                  Icon(Icons.check_circle_rounded,
-                      color: drawerColor, size: 18.sp),
+                  Icon(Icons.check_circle_rounded, color: drawerColor, size: 18.sp),
               ],
             ),
           ),
         ),
-
-        // Animated expand/collapse children
         AnimatedSize(
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeInOut,
@@ -1540,17 +1437,12 @@ class _LeaderboardCategorySheetState
                   padding: EdgeInsets.only(left: 8.w),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: cat.children
-                        .map((child) =>
-                            _buildNode(child, depth: depth + 1))
-                        .toList(),
+                    children: cat.children.map((child) => _buildNode(child, depth: depth + 1)).toList(),
                   ),
                 )
               : const SizedBox.shrink(),
         ),
-
-        if (depth == 0)
-          Divider(height: 1, color: Colors.grey.shade100),
+        if (depth == 0) Divider(height: 1, color: Colors.grey.shade100),
       ],
     );
   }

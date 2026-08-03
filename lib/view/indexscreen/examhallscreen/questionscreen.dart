@@ -2733,23 +2733,30 @@ Widget _buildQuickNav(ExamSessionProvider p) {
     );
   }
 
-  Widget _dialog({required List<Widget> children}) => Dialog(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
-    child: Container(
+Widget _dialog({required List<Widget> children}) => Dialog(
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+  child: ConstrainedBox(
+    constraints: BoxConstraints(
+      maxHeight: MediaQuery.of(context).size.height * 0.85,
+    ),
+    child: SingleChildScrollView(
       padding: EdgeInsets.all(24.w),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24.r),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(height: 20.h),
-          ...children,
-        ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24.r),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 20.h),
+            ...children,
+          ],
+        ),
       ),
     ),
-  );
+  ),
+);
 
   Widget _statsWidget(ExamSessionProvider p) => Container(
     padding: EdgeInsets.all(16.w),
