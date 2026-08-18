@@ -1,5 +1,4 @@
 import 'package:firstedu/res/constants/colors/appcolors.dart';
-import 'package:firstedu/res/widgets/custom_text.dart';
 import 'package:firstedu/view_models/authprovider/userSessionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

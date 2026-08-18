@@ -971,9 +971,6 @@ Widget _progressCard(BuildContext context, DashboardData? data) {
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// TIME BY ACTIVITY CARD  —  tap a slice to see title + time
-// ═══════════════════════════════════════════════════════════════════
 
 class _TimeByActivityCard extends StatefulWidget {
   final List<TestTypeStat>? stats;
@@ -1135,11 +1132,16 @@ class _TimeByActivityCardState extends State<_TimeByActivityCard> {
 
                     // Center tooltip when a slice is tapped
                     AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 200),
-                      child: touched != null
-                          ? _CenterTooltip(key: UniqueKey(), slice: touched)
-                          : const SizedBox.shrink(),
-                    ),
+  duration: const Duration(milliseconds: 200),
+  child: touched != null
+      ? _CenterTooltip(
+          key: ValueKey(touched.label),
+          slice: touched,
+        )
+      : const SizedBox.shrink(
+          key: ValueKey('empty-tooltip'),
+        ),
+),
                   ],
                 ),
               ),

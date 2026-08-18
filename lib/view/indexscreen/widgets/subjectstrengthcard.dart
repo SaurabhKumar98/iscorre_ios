@@ -125,7 +125,7 @@ List<CategoryPerformance> get _usableEntries => categoryPerformance;
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => PersonalizedLearningScreen(),

@@ -92,6 +92,7 @@ class AppPages {
     // List screen (no arguments needed)
     AppRoutesName.liveCompetitionscreen: (context) =>
         const LiveCompetitionsScreen(),
+        
 
     // Detail screen (receives competitionId as argument)
     AppRoutesName.liveCompetitionDetail: (context) {
@@ -99,6 +100,7 @@ class AppPages {
           ModalRoute.of(context)!.settings.arguments as String;
       return LiveCompetitionDetailScreen(competitionId: competitionId);
     },
+
 
     // ────────────────────────────────────────────────────────────────────
     AppRoutesName.courses: (context) => ChangeNotifierProvider(
