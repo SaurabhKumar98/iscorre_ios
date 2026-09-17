@@ -48,21 +48,21 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   bool _navigationScheduled = false;
   String? _joinedRoomCodeByUser;
 
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final provider = context.read<ChallengeProvider>();
-    final sessionProvider = context.read<UserSessionProvider>();
-    final token = sessionProvider.accessToken ?? '';
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<ChallengeProvider>();
+      final sessionProvider = context.read<UserSessionProvider>();
+      final token = sessionProvider.accessToken ?? '';
 
-    // ✅ Set currentUserId so host checks work
-    provider.currentUserId = sessionProvider.userId;
+      // ✅ Set currentUserId so host checks work
+      provider.currentUserId = sessionProvider.userId;
 
-    provider.initSocket(baseUrl: ApiEndpoint.socketBaseUrl, token: token);
-    provider.fetchAll(context);
-  });
-}
+      provider.initSocket(baseUrl: ApiEndpoint.socketBaseUrl, token: token);
+      provider.fetchAll(context);
+    });
+  }
 
   @override
   void dispose() {
@@ -88,30 +88,38 @@ void initState() {
       builder: (context, provider, _) {
         // ── NAVIGATION ──────────────────────────────────────────────
         // In build() — replace the navigation block at the top:
-if (provider.pendingSessionId != null &&
-    provider.pendingTestId != null &&
-    provider.pendingTestId!.isNotEmpty &&
-    !_navigationScheduled) {
-  _navigationScheduled = true;
-  final sid = provider.pendingSessionId!;
-  final testId = provider.pendingTestId!;
-  final challengeId = provider.pendingChallengeId;
+        if (provider.pendingSessionId != null &&
+            provider.pendingTestId != null &&
+            provider.pendingTestId!.isNotEmpty &&
+            !_navigationScheduled) {
+          _navigationScheduled = true;
+          final sid = provider.pendingSessionId!;
+          final testId = provider.pendingTestId!;
+          final challengeId = provider.pendingChallengeId;
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (!mounted) return;
-    final room = provider.rooms.firstWhere(
-      (r) => r.id == challengeId,
-      orElse: () => ChallengeRoom(),
-    );
-    final isHost = provider.currentUserId != null &&
-        room.createdBy?.id == provider.currentUserId;
-    provider.consumePendingSession();
-    _navigationScheduled = false;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final room = provider.rooms.firstWhere(
+              (r) => r.id == challengeId,
+              orElse: () => ChallengeRoom(),
+            );
+            final isHost =
+                provider.currentUserId != null &&
+                room.createdBy?.id == provider.currentUserId;
+            provider.consumePendingSession();
+            _navigationScheduled = false;
 
-    debugPrint('🚀 Navigating → sid=$sid testId=$testId isHost=$isHost');
-    _navigateToExam(context, sessionId: sid, testId: testId, isHost: isHost);
-  });
-}
+            debugPrint(
+              '🚀 Navigating → sid=$sid testId=$testId isHost=$isHost',
+            );
+            _navigateToExam(
+              context,
+              sessionId: sid,
+              testId: testId,
+              isHost: isHost,
+            );
+          });
+        }
 
         // ── AUTO-SELECT first room ONCE ─────────────────────────────
         if (!_hasAutoSelected &&
@@ -150,144 +158,149 @@ if (provider.pendingSessionId != null &&
 
         return Scaffold(
           backgroundColor: const Color(0xFFF0F2F8),
-          body: RefreshIndicator(
-            onRefresh: () => provider.fetchAll(context),
-            color: accentOrange,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(child: _buildHero(provider)),
-                if (provider.isLoading)
-                  const SliverToBoxAdapter(
-                    child: LinearProgressIndicator(
-                      minHeight: 3,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(accentOrange),
+          body: SafeArea(
+            top: false,
+            child: RefreshIndicator(
+              onRefresh: () => provider.fetchAll(context),
+              color: accentOrange,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(child: _buildHero(provider)),
+                  if (provider.isLoading)
+                    const SliverToBoxAdapter(
+                      child: LinearProgressIndicator(
+                        minHeight: 3,
+                        backgroundColor: Colors.transparent,
+                        valueColor: AlwaysStoppedAnimation<Color>(accentOrange),
+                      ),
                     ),
-                  ),
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 30),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      _buildStatsGrid(
-                        totalRooms,
-                        waitingRooms,
-                        activeRooms,
-                        provider.completed.length,
-                      ),
-                      const SizedBox(height: 16),
-                      _sectionLabel(
-                        icon: Icons.meeting_room_rounded,
-                        iconColor: accentOrange,
-                        title: 'Rooms',
-                        subtitle: 'Select a room to manage details.',
-                      ),
-                      const SizedBox(height: 10),
-
-                      // Search bar
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _searchController,
-                              style: const TextStyle(fontSize: 13),
-                              decoration: InputDecoration(
-                                hintText: 'Search rooms',
-                                hintStyle: TextStyle(
-                                  color: Colors.grey.shade400,
-                                  fontSize: 13,
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 11,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.shade300,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                  borderSide: const BorderSide(
-                                    color: drawerColor,
-                                    width: 1.5,
-                                  ),
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.search,
-                                  size: 18,
-                                  color: Colors.grey.shade400,
-                                ),
-                              ),
-                              onChanged: (v) =>
-                                  setState(() => _searchQuery = v),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: drawerColor,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 13,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            onPressed: () => setState(
-                              () => _searchQuery = _searchController.text,
-                            ),
-                            child: const Text(
-                              'Search',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
-
-                      if (provider.isLoading && provider.rooms.isEmpty)
-                        _buildShimmer()
-                      else if (filtered.isEmpty)
-                        _buildEmptyRooms()
-                      else
-                        ...filtered.map((r) => _buildRoomListItem(r, provider)),
-
-                      if (_selectedRoom != null) ...[
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(14, 14, 14, 30),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildStatsGrid(
+                          totalRooms,
+                          waitingRooms,
+                          activeRooms,
+                          provider.completed.length,
+                        ),
                         const SizedBox(height: 16),
                         _sectionLabel(
-                          icon: Icons.desktop_windows_outlined,
-                          iconColor: drawerColor,
-                          title: 'Room Details',
-                          subtitle: 'Manage selected room',
+                          icon: Icons.meeting_room_rounded,
+                          iconColor: accentOrange,
+                          title: 'Rooms',
+                          subtitle: 'Select a room to manage details.',
                         ),
                         const SizedBox(height: 10),
-                        _buildRoomDetailCard(_selectedRoom!, provider),
-                      ],
 
-                      const SizedBox(height: 16),
-                      _buildCompletedSection(provider),
-                      const SizedBox(height: 14),
-                      _buildTip(),
-                    ]),
+                        // Search bar
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _searchController,
+                                style: const TextStyle(fontSize: 13),
+                                decoration: InputDecoration(
+                                  hintText: 'Search rooms',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey.shade400,
+                                    fontSize: 13,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 11,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: const BorderSide(
+                                      color: drawerColor,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  prefixIcon: Icon(
+                                    Icons.search,
+                                    size: 18,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                ),
+                                onChanged: (v) =>
+                                    setState(() => _searchQuery = v),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: drawerColor,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 13,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              onPressed: () => setState(
+                                () => _searchQuery = _searchController.text,
+                              ),
+                              child: const Text(
+                                'Search',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+
+                        if (provider.isLoading && provider.rooms.isEmpty)
+                          _buildShimmer()
+                        else if (filtered.isEmpty)
+                          _buildEmptyRooms()
+                        else
+                          ...filtered.map(
+                            (r) => _buildRoomListItem(r, provider),
+                          ),
+
+                        if (_selectedRoom != null) ...[
+                          const SizedBox(height: 16),
+                          _sectionLabel(
+                            icon: Icons.desktop_windows_outlined,
+                            iconColor: drawerColor,
+                            title: 'Room Details',
+                            subtitle: 'Manage selected room',
+                          ),
+                          const SizedBox(height: 10),
+                          _buildRoomDetailCard(_selectedRoom!, provider),
+                        ],
+
+                        const SizedBox(height: 16),
+                        _buildCompletedSection(provider),
+                        const SizedBox(height: 14),
+                        _buildTip(),
+                      ]),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -503,8 +516,9 @@ if (provider.pendingSessionId != null &&
         dotColor = Colors.grey;
     }
 
-   final isCreator = provider.currentUserId != null &&
-    room.createdBy?.id == provider.currentUserId;
+    final isCreator =
+        provider.currentUserId != null &&
+        room.createdBy?.id == provider.currentUserId;
     // Can delete: host + waiting + no one else has joined (only 0 or 1 participant = just the host)
     final canQuickDelete = isCreator && status == 'waiting' && count <= 1;
 
@@ -566,22 +580,25 @@ if (provider.pendingSessionId != null &&
               ),
             ),
             // Quick-delete icon for empty waiting rooms
-           if (canQuickDelete)
-  GestureDetector(
-    onTap: () async {
-      final confirm = await _confirmDelete(context);
-      if (!confirm || !context.mounted) return;
-      final ok = await provider.deleteChallenge(context, room.id ?? '');
-      if (ok && mounted) {
-        setState(() {
-          // ✅ Clear selected room if it was the deleted one
-          if (_selectedRoom?.id == room.id) {
-            _selectedRoom = null;
-            _hasAutoSelected = false; // allow re-auto-select
-          }
-        });
-      }
-    },
+            if (canQuickDelete)
+              GestureDetector(
+                onTap: () async {
+                  final confirm = await _confirmDelete(context);
+                  if (!confirm || !context.mounted) return;
+                  final ok = await provider.deleteChallenge(
+                    context,
+                    room.id ?? '',
+                  );
+                  if (ok && mounted) {
+                    setState(() {
+                      // ✅ Clear selected room if it was the deleted one
+                      if (_selectedRoom?.id == room.id) {
+                        _selectedRoom = null;
+                        _hasAutoSelected = false; // allow re-auto-select
+                      }
+                    });
+                  }
+                },
 
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8),
@@ -608,46 +625,50 @@ if (provider.pendingSessionId != null &&
       ),
     );
   }
-Future<void> _shareViaWhatsApp(ChallengeRoom room) async {
-  final code = room.roomCode ?? '';
-  final title = room.title ?? 'Challenge';
 
-  final message = Uri.encodeComponent(
-    '🏆 *$title* — Challenge Invite!\n\n'
-    'Join my challenge on Firstedu!\n\n'
-    '📌 Room Code: *$code*\n\n'
-    '👉 Open the app → Challenge Arena → Join Room → Enter code *$code*\n\n'
-    '⚡ Let\'s battle it out!',
-  );
+  Future<void> _shareViaWhatsApp(ChallengeRoom room) async {
+    final code = room.roomCode ?? '';
+    final title = room.title ?? 'Challenge';
 
-  final whatsappUrl = 'whatsapp://send?text=$message';
-  final fallbackUrl = 'https://wa.me/?text=$message';
+    final message = Uri.encodeComponent(
+      '🏆 *$title* — Challenge Invite!\n\n'
+      'Join my challenge on Firstedu!\n\n'
+      '📌 Room Code: *$code*\n\n'
+      '👉 Open the app → Challenge Arena → Join Room → Enter code *$code*\n\n'
+      '⚡ Let\'s battle it out!',
+    );
 
-  final whatsappUri = Uri.parse(whatsappUrl);
-  final fallbackUri = Uri.parse(fallbackUrl);
+    final whatsappUrl = 'whatsapp://send?text=$message';
+    final fallbackUrl = 'https://wa.me/?text=$message';
 
-  if (await canLaunchUrl(whatsappUri)) {
-    await launchUrl(whatsappUri);
-  } else {
-    if (await canLaunchUrl(fallbackUri)) {
-      await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+    final whatsappUri = Uri.parse(whatsappUrl);
+    final fallbackUri = Uri.parse(fallbackUrl);
+
+    if (await canLaunchUrl(whatsappUri)) {
+      await launchUrl(whatsappUri);
     } else {
-      AppToast.infoGlobal(message: 'WhatsApp is not installed');
+      if (await canLaunchUrl(fallbackUri)) {
+        await launchUrl(fallbackUri, mode: LaunchMode.externalApplication);
+      } else {
+        AppToast.infoGlobal(message: 'WhatsApp is not installed');
+      }
     }
   }
-}
+
   // ═══════════════════════════════════════════════════════════════════
   // ROOM DETAIL CARD
   // ═══════════════════════════════════════════════════════════════════
- Widget _buildRoomDetailCard(ChallengeRoom room, ChallengeProvider provider) {
-  final participants = room.participants ?? [];
-  final status = room.roomStatus?.toLowerCase() ?? '';
-  
-  // ✅ isCreator must be declared BEFORE canStart
-  final isCreator = provider.currentUserId != null &&
-      room.createdBy?.id == provider.currentUserId;
-  final canStart = isCreator && status == 'waiting' && participants.length >= 2;
-  final canDelete = isCreator && status == 'waiting';
+  Widget _buildRoomDetailCard(ChallengeRoom room, ChallengeProvider provider) {
+    final participants = room.participants ?? [];
+    final status = room.roomStatus?.toLowerCase() ?? '';
+
+    // ✅ isCreator must be declared BEFORE canStart
+    final isCreator =
+        provider.currentUserId != null &&
+        room.createdBy?.id == provider.currentUserId;
+    final canStart =
+        isCreator && status == 'waiting' && participants.length >= 2;
+    final canDelete = isCreator && status == 'waiting';
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -717,10 +738,10 @@ Future<void> _shareViaWhatsApp(ChallengeRoom room) async {
           ),
           const SizedBox(height: 8),
           _actionButton(
-  icon: Icons.share_outlined,
-  label: 'Share Link',
-  onTap: () => _shareViaWhatsApp(room),
-),
+            icon: Icons.share_outlined,
+            label: 'Share Link',
+            onTap: () => _shareViaWhatsApp(room),
+          ),
 
           if (canStart) ...[
             const SizedBox(height: 10),
@@ -1673,28 +1694,28 @@ Future<void> _shareViaWhatsApp(ChallengeRoom room) async {
                 ),
                 const SizedBox(height: 20),
                 TextField(
-  controller: codeCtrl,
-  textAlign: TextAlign.center,
-  keyboardType: TextInputType.number,
-  inputFormatters: [
-    FilteringTextInputFormatter.digitsOnly,
-    LengthLimitingTextInputFormatter(8),
-  ],
-  style: const TextStyle(
-    fontSize: 22,
-    fontWeight: FontWeight.w800,
-    letterSpacing: 5,
-  ),
-  decoration: InputDecoration(
-    hintText: '12345678',
-    counterText: '',
-    filled: true,
-    fillColor: Colors.grey.shade50,
-    border: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(12),
-    ),
-  ),
-),
+                  controller: codeCtrl,
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(8),
+                  ],
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 5,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '12345678',
+                    counterText: '',
+                    filled: true,
+                    fillColor: Colors.grey.shade50,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -1762,595 +1783,669 @@ Future<void> _shareViaWhatsApp(ChallengeRoom room) async {
   // ═══════════════════════════════════════════════════════════════════
   // CREATE ROOM BOTTOM SHEET
   // ═══════════════════════════════════════════════════════════════════
-void _showCreateRoomSheet(
-  ChallengeProvider provider, {
-  ChallengeItem? preselected,
-}) {
-  // Fetch categories + reset filters when sheet opens
-  provider.fetchCategories(context);
-  provider.clearCategoryFilter();
-  provider.fetchChallengesFiltered(context);
-
-  final titleCtrl = TextEditingController();
-  final descCtrl  = TextEditingController();
-  final searchCtrl = TextEditingController();
-  ChallengeItem? selected = preselected;
-
-  InputDecoration dec({
-    required String label,
-    required String hint,
-    required IconData icon,
+  void _showCreateRoomSheet(
+    ChallengeProvider provider, {
+    ChallengeItem? preselected,
   }) {
-    return InputDecoration(
-      labelText: label,
-      hintText: hint,
-      hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-      labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-      filled: true,
-      fillColor: Colors.grey.shade50,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      prefixIcon: Icon(icon, color: drawerColor, size: 18),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade300),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade300),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: drawerColor, width: 2),
-      ),
-    );
-  }
+    // Fetch categories + reset filters when sheet opens
+    provider.fetchCategories(context);
+    provider.clearCategoryFilter();
+    provider.fetchChallengesFiltered(context);
 
-  showModalBottomSheet(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setSheet) => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    final titleCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+    final searchCtrl = TextEditingController();
+    ChallengeItem? selected = preselected;
+
+    InputDecoration dec({
+      required String label,
+      required String hint,
+      required IconData icon,
+    }) {
+      return InputDecoration(
+        labelText: label,
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
+        labelStyle: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+        prefixIcon: Icon(icon, color: drawerColor, size: 18),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: drawerColor, width: 2),
+        ),
+      );
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheet) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
           ),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-            child: Consumer<ChallengeProvider>(
-              builder: (context, prov, _) => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  // ── Drag handle ─────────────────────────────────────
-                  Center(
-                    child: Container(
-                      width: 40, height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ── Header ──────────────────────────────────────────
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+              child: Consumer<ChallengeProvider>(
+                builder: (context, prov, _) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // ── Drag handle ─────────────────────────────────────
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
                         decoration: BoxDecoration(
-                          color: drawerColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                        child: const Icon(
-                          Icons.group_add, color: drawerColor, size: 22),
                       ),
-                      const SizedBox(width: 12),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Create a Room',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1A1A2E),
-                            ),
-                          ),
-                          Text(
-                            'Invite friends with a room code',
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.black45),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 22),
-
-                  // ── Title ───────────────────────────────────────────
-                  TextField(
-                    controller: titleCtrl,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: dec(
-                      label: 'Room Title',
-                      hint: 'e.g. Saturday Physics Battle',
-                      icon: Icons.title_rounded,
                     ),
-                  ),
-                  const SizedBox(height: 12),
+                    const SizedBox(height: 20),
 
-                  // ── Description ─────────────────────────────────────
-                  TextField(
-                    controller: descCtrl,
-                    maxLines: 2,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: dec(
-                      label: 'Description (optional)',
-                      hint: 'What is this challenge about?',
-                      icon: Icons.description_rounded,
-                    ),
-                  ),
-                  const SizedBox(height: 18),
-
-                  // ── Category Filter label ────────────────────────────
-                  Text(
-                    'Filter by Category (optional)',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // ── Category chips ───────────────────────────────────
-                  prov.isCategoryLoading
-                      ? const SizedBox(
-                          height: 36,
-                          child: Center(
-                            child: SizedBox(
-                              width: 16, height: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2, color: drawerColor),
-                            ),
+                    // ── Header ──────────────────────────────────────────
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: drawerColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        )
-                      : prov.categories.isEmpty
-                          ? Text(
-                              'No categories available',
+                          child: const Icon(
+                            Icons.group_add,
+                            color: drawerColor,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Create a Room',
                               style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade400),
-                            )
-                          : SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  // "All" chip
-                                  GestureDetector(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1A1A2E),
+                              ),
+                            ),
+                            Text(
+                              'Invite friends with a room code',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.black45,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 22),
+
+                    // ── Title ───────────────────────────────────────────
+                    TextField(
+                      controller: titleCtrl,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: dec(
+                        label: 'Room Title',
+                        hint: 'e.g. Saturday Physics Battle',
+                        icon: Icons.title_rounded,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // ── Description ─────────────────────────────────────
+                    TextField(
+                      controller: descCtrl,
+                      maxLines: 2,
+                      textCapitalization: TextCapitalization.sentences,
+                      decoration: dec(
+                        label: 'Description (optional)',
+                        hint: 'What is this challenge about?',
+                        icon: Icons.description_rounded,
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // ── Category Filter label ────────────────────────────
+                    Text(
+                      'Filter by Category (optional)',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // ── Category chips ───────────────────────────────────
+                    prov.isCategoryLoading
+                        ? const SizedBox(
+                            height: 36,
+                            child: Center(
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: drawerColor,
+                                ),
+                              ),
+                            ),
+                          )
+                        : prov.categories.isEmpty
+                        ? Text(
+                            'No categories available',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade400,
+                            ),
+                          )
+                        : SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                // "All" chip
+                                GestureDetector(
+                                  onTap: () {
+                                    prov.selectCategory(null);
+                                    prov.setTestSearchQuery(
+                                      searchCtrl.text.trim(),
+                                    );
+                                    prov.fetchChallengesFiltered(context);
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 150),
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: prov.selectedCategory == null
+                                          ? drawerColor
+                                          : Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      'All',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: prov.selectedCategory == null
+                                            ? Colors.white
+                                            : Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Category chips
+                                ...prov.categories.map((cat) {
+                                  final isSelected =
+                                      prov.selectedCategory?.id == cat.id;
+                                  return GestureDetector(
                                     onTap: () {
-                                      prov.selectCategory(null);
+                                      prov.selectCategory(cat);
                                       prov.setTestSearchQuery(
-                                          searchCtrl.text.trim());
+                                        searchCtrl.text.trim(),
+                                      );
                                       prov.fetchChallengesFiltered(context);
                                     },
                                     child: AnimatedContainer(
-                                      duration:
-                                          const Duration(milliseconds: 150),
+                                      duration: const Duration(
+                                        milliseconds: 150,
+                                      ),
                                       margin: const EdgeInsets.only(right: 8),
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 8),
+                                        horizontal: 14,
+                                        vertical: 8,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: prov.selectedCategory == null
+                                        color: isSelected
                                             ? drawerColor
                                             : Colors.grey.shade100,
-                                        borderRadius:
-                                            BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(20),
                                       ),
                                       child: Text(
-                                        'All',
+                                        cat.name ?? '',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color:
-                                              prov.selectedCategory == null
-                                                  ? Colors.white
-                                                  : Colors.grey.shade700,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : Colors.grey.shade700,
                                         ),
                                       ),
                                     ),
+                                  );
+                                }),
+                              ],
+                            ),
+                          ),
+                    const SizedBox(height: 14),
+
+                    // ── Search tests ─────────────────────────────────────
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: searchCtrl,
+                            decoration: InputDecoration(
+                              hintText: 'Search tests...',
+                              hintStyle: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontSize: 13,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              prefixIcon: Icon(
+                                Icons.search,
+                                color: Colors.grey.shade400,
+                                size: 18,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: const BorderSide(
+                                  color: drawerColor,
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                            onSubmitted: (v) {
+                              prov.setTestSearchQuery(v.trim());
+                              prov.fetchChallengesFiltered(context);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            prov.setTestSearchQuery(searchCtrl.text.trim());
+                            prov.fetchChallengesFiltered(context);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: drawerColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Text(
+                              'Search',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+
+                    // ── Select Challenge Test label ───────────────────────
+                    Text(
+                      'Select Challenge Test',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+
+                    // ── Test picker ──────────────────────────────────────
+                    prov.isLoading
+                        ? const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: drawerColor,
+                              ),
+                            ),
+                          )
+                        : prov.challenges.isEmpty
+                        ? Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Text(
+                              'No tests found',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey.shade400,
+                              ),
+                            ),
+                          )
+                        : GestureDetector(
+                            onTap: () async {
+                              final picked = await showModalBottomSheet<ChallengeItem>(
+                                context: context,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (_) => Container(
+                                  constraints: BoxConstraints(
+                                    maxHeight:
+                                        MediaQuery.of(context).size.height *
+                                        0.6,
                                   ),
-                                  // Category chips
-                                  ...prov.categories.map((cat) {
-                                    final isSelected =
-                                        prov.selectedCategory?.id == cat.id;
-                                    return GestureDetector(
-                                      onTap: () {
-                                        prov.selectCategory(cat);
-                                        prov.setTestSearchQuery(
-                                            searchCtrl.text.trim());
-                                        prov.fetchChallengesFiltered(
-                                            context);
-                                      },
-                                      child: AnimatedContainer(
-                                        duration: const Duration(
-                                            milliseconds: 150),
-                                        margin:
-                                            const EdgeInsets.only(right: 8),
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 14, vertical: 8),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        width: 40,
+                                        height: 4,
                                         decoration: BoxDecoration(
-                                          color: isSelected
-                                              ? drawerColor
-                                              : Colors.grey.shade100,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          cat.name??'',
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: isSelected
-                                                ? Colors.white
-                                                : Colors.grey.shade700,
+                                          color: Colors.grey.shade300,
+                                          borderRadius: BorderRadius.circular(
+                                            2,
                                           ),
                                         ),
                                       ),
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                  const SizedBox(height: 14),
-
-                  // ── Search tests ─────────────────────────────────────
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: searchCtrl,
-                          decoration: InputDecoration(
-                            hintText: 'Search tests...',
-                            hintStyle: TextStyle(
-                                color: Colors.grey.shade400, fontSize: 13),
-                            filled: true,
-                            fillColor: Colors.grey.shade50,
-                            contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 12),
-                            prefixIcon: Icon(Icons.search,
-                                color: Colors.grey.shade400, size: 18),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(color: Colors.grey.shade300),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide:
-                                  BorderSide(color: Colors.grey.shade300),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(
-                                  color: drawerColor, width: 1.5),
-                            ),
-                          ),
-                          onSubmitted: (v) {
-                            prov.setTestSearchQuery(v.trim());
-                            prov.fetchChallengesFiltered(context);
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      GestureDetector(
-                        onTap: () {
-                          prov.setTestSearchQuery(
-                              searchCtrl.text.trim());
-                          prov.fetchChallengesFiltered(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 14, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: drawerColor,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            'Search',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-
-                  // ── Select Challenge Test label ───────────────────────
-                  Text(
-                    'Select Challenge Test',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // ── Test picker ──────────────────────────────────────
-                  prov.isLoading
-                      ? const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: drawerColor),
-                          ),
-                        )
-                      : prov.challenges.isEmpty
-                          ? Container(
+                                      const SizedBox(height: 14),
+                                      const Padding(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 20,
+                                        ),
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Text(
+                                            'Select Challenge Test',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              color: Color(0xFF1A1A2E),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Flexible(
+                                        child: ListView.separated(
+                                          shrinkWrap: true,
+                                          padding: const EdgeInsets.fromLTRB(
+                                            16,
+                                            0,
+                                            16,
+                                            24,
+                                          ),
+                                          itemCount: prov.challenges.length,
+                                          separatorBuilder: (_, __) => Divider(
+                                            height: 1,
+                                            color: Colors.grey.shade100,
+                                          ),
+                                          itemBuilder: (_, i) {
+                                            final c = prov.challenges[i];
+                                            final isSel = selected?.id == c.id;
+                                            return ListTile(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 4,
+                                                    vertical: 4,
+                                                  ),
+                                              leading: Container(
+                                                width: 42,
+                                                height: 42,
+                                                decoration: BoxDecoration(
+                                                  color: isSel
+                                                      ? drawerColor.withOpacity(
+                                                          0.1,
+                                                        )
+                                                      : Colors.grey.shade100,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Icon(
+                                                  Icons.quiz_rounded,
+                                                  color: isSel
+                                                      ? drawerColor
+                                                      : Colors.grey.shade400,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                              title: Text(
+                                                c.title ?? 'Untitled',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isSel
+                                                      ? drawerColor
+                                                      : const Color(0xFF1A1A2E),
+                                                ),
+                                              ),
+                                              subtitle: Text(
+                                                '${c.durationMinutes ?? 0} min  ·  '
+                                                '${(c.price ?? 0) == 0 ? 'Free' : 's${c.price}'}',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: Colors.grey.shade500,
+                                                ),
+                                              ),
+                                              trailing: isSel
+                                                  ? const Icon(
+                                                      Icons
+                                                          .check_circle_rounded,
+                                                      color: drawerColor,
+                                                      size: 20,
+                                                    )
+                                                  : null,
+                                              onTap: () =>
+                                                  Navigator.pop(context, c),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                              if (picked != null) {
+                                setSheet(() => selected = picked);
+                              }
+                            },
+                            child: Container(
                               width: double.infinity,
-                              padding: const EdgeInsets.all(14),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade50,
                                 borderRadius: BorderRadius.circular(12),
-                                border:
-                                    Border.all(color: Colors.grey.shade300),
+                                border: Border.all(
+                                  color: selected != null
+                                      ? drawerColor.withOpacity(0.5)
+                                      : Colors.grey.shade300,
+                                  width: selected != null ? 1.5 : 1,
+                                ),
                               ),
-                              child: Text(
-                                'No tests found',
-                                style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey.shade400),
-                              ),
-                            )
-                         : GestureDetector(
-    onTap: () async {
-      final picked = await showModalBottomSheet<ChallengeItem>(
-        context: context,
-        backgroundColor: Colors.transparent,
-        isScrollControlled: true,
-        builder: (_) => Container(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.6,
-          ),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40, height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 14),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Select Challenge Test',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1A1A2E),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Flexible(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                  itemCount: prov.challenges.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(height: 1, color: Colors.grey.shade100),
-                  itemBuilder: (_, i) {
-                    final c = prov.challenges[i];
-                    final isSel = selected?.id == c.id;
-                    return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 4, vertical: 4,
-                      ),
-                      leading: Container(
-                        width: 42, height: 42,
-                        decoration: BoxDecoration(
-                          color: isSel
-                              ? drawerColor.withOpacity(0.1)
-                              : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.quiz_rounded,
-                          color: isSel ? drawerColor : Colors.grey.shade400,
-                          size: 20,
-                        ),
-                      ),
-                      title: Text(
-                        c.title ?? 'Untitled',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: isSel ? drawerColor : const Color(0xFF1A1A2E),
-                        ),
-                      ),
-                      subtitle: Text(
-                        '${c.durationMinutes ?? 0} min  ·  '
-                        '${(c.price ?? 0) == 0 ? 'Free' : 's${c.price}'}',
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                      ),
-                      trailing: isSel
-                          ? const Icon(Icons.check_circle_rounded,
-                              color: drawerColor, size: 20)
-                          : null,
-                      onTap: () => Navigator.pop(context, c),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-      if (picked != null) {
-        setSheet(() => selected = picked);
-      }
-    },
-                              child: Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 14),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade50,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.quiz_rounded,
                                     color: selected != null
-                                        ? drawerColor.withOpacity(0.5)
-                                        : Colors.grey.shade300,
-                                    width: selected != null ? 1.5 : 1,
+                                        ? drawerColor
+                                        : Colors.grey.shade400,
+                                    size: 18,
                                   ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.quiz_rounded,
-                                      color: selected != null
-                                          ? drawerColor
-                                          : Colors.grey.shade400,
-                                      size: 18,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        selected != null
-                                            ? '${selected!.title ?? 'Untitled'}  ·  ${selected!.durationMinutes ?? 0} min'
-                                            : 'Choose a challenge…',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: selected != null
-                                              ? FontWeight.w600
-                                              : FontWeight.w400,
-                                          color: selected != null
-                                              ? const Color(0xFF1A1A2E)
-                                              : Colors.grey.shade400,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      selected != null
+                                          ? '${selected!.title ?? 'Untitled'}  ·  ${selected!.durationMinutes ?? 0} min'
+                                          : 'Choose a challenge…',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: selected != null
+                                            ? FontWeight.w600
+                                            : FontWeight.w400,
+                                        color: selected != null
+                                            ? const Color(0xFF1A1A2E)
+                                            : Colors.grey.shade400,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    Icon(
-                                      Icons.keyboard_arrow_down_rounded,
-                                      color: Colors.grey.shade500,
-                                      size: 20,
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  Icon(
+                                    Icons.keyboard_arrow_down_rounded,
+                                    color: Colors.grey.shade500,
+                                    size: 20,
+                                  ),
+                                ],
                               ),
                             ),
+                          ),
 
-                  // ── Selected preview chip ────────────────────────────
-                  if (selected != null) ...[
-                    const SizedBox(height: 10),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: drawerColor.withOpacity(0.06),
-                        borderRadius: BorderRadius.circular(12),
-                        border:
-                            Border.all(color: drawerColor.withOpacity(0.2)),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.check_circle_rounded,
-                              color: drawerColor, size: 16),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              selected!.title ?? '',
+                    // ── Selected preview chip ────────────────────────────
+                    if (selected != null) ...[
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: drawerColor.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: drawerColor.withOpacity(0.2),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.check_circle_rounded,
+                              color: drawerColor,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                selected!.title ?? '',
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: drawerColor,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Text(
+                              '${selected!.durationMinutes ?? 0} min',
                               style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
                                 color: drawerColor,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Text(
-                            '${selected!.durationMinutes ?? 0} min',
-                            style: const TextStyle(
-                                fontSize: 11, color: drawerColor),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: 22),
+
+                    // ── Create button ────────────────────────────────────
+                    ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: drawerColor,
+                        elevation: 0,
+                        minimumSize: const Size(double.infinity, 50),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      onPressed: () async {
+                        final title = titleCtrl.text.trim();
+                        if (title.isEmpty) {
+                          AppToast.infoGlobal(
+                            message: "Please enter a room title",
+                          );
+                          return;
+                        }
+                        if (selected == null) {
+                          AppToast.infoGlobal(
+                            message: "Please select a challenge",
+                          );
+                          return;
+                        }
+                        Navigator.pop(ctx);
+                        await provider.createRoom(
+                          context,
+                          testId: selected!.id ?? '',
+                          title: title,
+                          description: descCtrl.text.trim(),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.rocket_launch_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Create Room',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                   ],
-
-                  const SizedBox(height: 22),
-
-                  // ── Create button ────────────────────────────────────
-                  ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: drawerColor,
-                      elevation: 0,
-                      minimumSize: const Size(double.infinity, 50),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    onPressed: () async {
-                      final title = titleCtrl.text.trim();
-                      if (title.isEmpty) {
-                        AppToast.infoGlobal(
-                            message: "Please enter a room title");
-                        return;
-                      }
-                      if (selected == null) {
-                        AppToast.infoGlobal(
-                            message: "Please select a challenge");
-                        return;
-                      }
-                      Navigator.pop(ctx);
-                      await provider.createRoom(
-                        context,
-                        testId: selected!.id ?? '',
-                        title: title,
-                        description: descCtrl.text.trim(),
-                      );
-                    },
-                    icon: const Icon(Icons.rocket_launch_rounded,
-                        color: Colors.white, size: 18),
-                    label: const Text(
-                      'Create Room',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

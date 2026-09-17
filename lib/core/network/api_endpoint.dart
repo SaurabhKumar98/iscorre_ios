@@ -1,9 +1,13 @@
 class ApiEndpoint {
-  static const String appBaseUrl = "https://api.iscorre.com/user";
+  // static const String appBaseUrl = "https://api.iscorre.com/user";
+  static const String appBaseUrl = "https://api.testladr.com/user";
+
   // static const String appBaseUrl = "http://192.168.88.29:8000/user";
 
-  static const String socketurl = "https://api.iscorre.com/support";
-  static const String websocket = "https://api.iscorre.com";
+  // static const String socketurl = "https://api.iscorre.com/support";
+  static const String socketurl = "https://api.testladr.com/support";
+  static const String websocket = "https://api.testladr.com";
+  // static const String websocket = "https://api.iscorre.com";
   static const String signup = "$appBaseUrl/signup";
   static const String login = "$appBaseUrl/login";
   static const String sendLoginOtp = '$appBaseUrl/send-otp';
@@ -33,7 +37,8 @@ class ApiEndpoint {
   static const String deleteAccount = "$appBaseUrl/delete-account";
   static const String myCourses = '$appBaseUrl/my-courses';
 
-  static const String socketBaseUrl = "https://api.iscorre.com";
+  // static const String socketBaseUrl = "https://api.iscorre.com";
+  static const String socketBaseUrl = "https://api.testladr.com";
 
   static String? cachedToken;
 }

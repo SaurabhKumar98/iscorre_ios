@@ -1,9 +1,10 @@
+import 'dart:async';
+
+import 'package:firstedu/core/constant/app_assets.dart';
 import 'package:firstedu/res/constants/colors/appcolors.dart';
 import 'package:firstedu/view_models/authprovider/userSessionProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'dart:async';
-
 import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -42,9 +43,10 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _fadeController, curve: Curves.easeIn),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeIn));
 
     _pulseController = AnimationController(
       vsync: this,
@@ -58,9 +60,10 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
       duration: const Duration(seconds: 6),
     )..repeat(reverse: true);
-    _bgAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _bgController, curve: Curves.easeInOut),
-    );
+    _bgAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _bgController, curve: Curves.easeInOut));
 
     _initApp();
   }
@@ -73,8 +76,10 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!mounted) return;
 
-    final sessionProvider =
-        Provider.of<UserSessionProvider>(context, listen: false);
+    final sessionProvider = Provider.of<UserSessionProvider>(
+      context,
+      listen: false,
+    );
 
     await sessionProvider.hydrate(context);
 
@@ -233,10 +238,15 @@ class _SplashScreenState extends State<SplashScreen>
                             );
                           },
                           child: Image.asset(
-                            'assets/images/splashscreen.png',
+                            AppAssets.appDrawerImage,
                             width: 230.w,
                             fit: BoxFit.contain,
                           ),
+                          // child: Image.asset(
+                          //   'assets/images/splashscreen.png',
+                          //   width: 230.w,
+                          //   fit: BoxFit.contain,
+                          // ),
                         ),
                       ),
                     ),

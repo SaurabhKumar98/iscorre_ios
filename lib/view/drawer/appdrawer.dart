@@ -1,3 +1,4 @@
+import 'package:firstedu/core/constant/app_assets.dart';
 import 'package:firstedu/data/models/drawermodel.dart';
 import 'package:firstedu/res/constants/colors/appcolors.dart';
 import 'package:firstedu/res/routes/approutesname.dart';
@@ -11,11 +12,7 @@ class AppDrawer extends StatefulWidget {
   final void Function(int index)? onTabSwitch;
   final Map<String, int>? routeToTabIndex;
 
-  const AppDrawer({
-    super.key,
-    this.onTabSwitch,
-    this.routeToTabIndex,
-  });
+  const AppDrawer({super.key, this.onTabSwitch, this.routeToTabIndex});
 
   @override
   State<AppDrawer> createState() => _AppDrawerState();
@@ -32,8 +29,8 @@ class _AppDrawerState extends State<AppDrawer> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<LiveCompetitionDrawerProvider>().fetchLiveCompetitions(
-            context,
-          );
+        context,
+      );
     });
   }
 
@@ -60,8 +57,8 @@ class _AppDrawerState extends State<AppDrawer> {
             physics: const BouncingScrollPhysics(),
             children: [
               _header(),
-              // const SizedBox(height: 2),
 
+              // const SizedBox(height: 2),
               ...List.generate(drawerMenuItems.length, (index) {
                 final item = drawerMenuItems[index];
                 final isExpanded = _expandedIndex == index;
@@ -184,11 +181,7 @@ class _AppDrawerState extends State<AppDrawer> {
           highlightColor: Colors.white.withOpacity(0.08),
           onTap: () {
             Navigator.pop(context);
-            Navigator.pushNamed(
-              context,
-              sub.route,
-              arguments: sub.arguments,
-            );
+            Navigator.pushNamed(context, sub.route, arguments: sub.arguments);
           },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -211,11 +204,12 @@ class _AppDrawerState extends State<AppDrawer> {
   Widget _header() {
     return Row(
       children: [
-      Image.asset(
-  'assets/images/appdraweriscorre.png',
-  height: 80,
-  fit: BoxFit.contain,
-),
+        // Image.asset(
+        //   'assets/images/appdraweriscorre.png',
+        //   height: 80,
+        //   fit: BoxFit.contain,
+        // ),
+        Image.asset(AppAssets.appDrawerImage, height: 80, fit: BoxFit.contain),
       ],
     );
   }

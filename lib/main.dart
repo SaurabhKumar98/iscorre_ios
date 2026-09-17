@@ -96,7 +96,9 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    
+  );
   await initMessaging();
   runApp(const MyApp());
 }
