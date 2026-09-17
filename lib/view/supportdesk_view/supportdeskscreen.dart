@@ -315,6 +315,7 @@ class _SupportDeskScreenState extends State<SupportDeskScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+
       backgroundColor: Colors.transparent,
       builder: (_) => const NewTicketSheet(),
     );
@@ -437,161 +438,166 @@ class _NewTicketSheetState extends State<NewTicketSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: 20.w,
-        right: 20.w,
-        top: 24.h,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
-      ),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle bar
-            Center(
-              child: Container(
-                width: 40.w,
-                height: 4.h,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  borderRadius: BorderRadius.circular(2.r),
-                ),
-              ),
-            ),
-            SizedBox(height: 20.h),
-
-            Row(
-              children: [
-                const Expanded(
-                  child: CustomText(
-                    text: "Submit a New Request",
-                    size: 20,
-                    weight: FontWeight.w700,
-                    color: Colors.black87,
+    return SafeArea(
+      child: Container(
+        padding: EdgeInsets.only(
+          left: 20.w,
+          right: 20.w,
+          top: 24.h,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 20.h,
+        ),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2.r),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(Icons.close_rounded, size: 24.sp),
-                  onPressed: () => Navigator.pop(context),
-                  padding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-            SizedBox(height: 24.h),
-
-            // Subject
-            _label("SUBJECT"),
-            SizedBox(height: 8.h),
-            _textField(
-              controller: _subjectCtrl,
-              hint: "Brief description of your issue",
-              maxLines: 1,
-            ),
-            SizedBox(height: 20.h),
-
-            // Category
-            _label("CATEGORY (OPTIONAL)"),
-            SizedBox(height: 8.h),
-            DropdownButtonFormField<String>(
-              value: _selectedCategory,
-              hint: Text(
-                "Select a category",
-                style: TextStyle(color: Colors.grey.shade400, fontSize: 14.sp),
               ),
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey.shade50,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                  vertical: 14.h,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.r),
-                  borderSide: BorderSide(color: drawerColor, width: 2),
-                ),
-              ),
-              items: _categories
-                  .map(
-                    (c) => DropdownMenuItem(
-                      value: c,
-                      child: Text(
-                        c.replaceAll('_', ' ').toUpperCase(),
-                        style: TextStyle(fontSize: 13.sp),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (v) => setState(() => _selectedCategory = v),
-            ),
-            SizedBox(height: 20.h),
+              SizedBox(height: 20.h),
 
-            // Description
-            _label("DESCRIBE YOUR PROBLEM"),
-            SizedBox(height: 8.h),
-            _textField(
-              controller: _descCtrl,
-              hint: "Provide details so we can help you faster...",
-              maxLines: 5,
-            ),
-            SizedBox(height: 28.h),
-
-            // Buttons
-            Consumer<SupportDeskProvider>(
-              builder: (_, provider, __) => Row(
+              Row(
                 children: [
-                  Expanded(
-                    child: CustomButton(
-                      title: "Cancel",
-                      onTap: () => Navigator.pop(context),
-                      primary: false,
-                      backgroundColor: Colors.white,
-                      textColor: Colors.grey.shade700,
-                      borderColor: Colors.grey.shade300,
-                      height: 50.h,
+                  const Expanded(
+                    child: CustomText(
+                      text: "Submit a New Request",
+                      size: 20,
+                      weight: FontWeight.w700,
+                      color: Colors.black87,
                     ),
                   ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: provider.isCreatingTicket
-                        ? Container(
-                            height: 50.h,
-                            decoration: BoxDecoration(
-                              color: drawerColor,
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            alignment: Alignment.center,
-                            child: const CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : CustomButton(
-                            title: "Submit",
-                            onTap: _submit,
-                            backgroundColor: drawerColor,
-                            textColor: Colors.white,
-                            height: 50.h,
-                          ),
+                  IconButton(
+                    icon: Icon(Icons.close_rounded, size: 24.sp),
+                    onPressed: () => Navigator.pop(context),
+                    padding: EdgeInsets.zero,
                   ),
                 ],
               ),
-            ),
-            SizedBox(height: 8.h),
-          ],
+              SizedBox(height: 24.h),
+
+              // Subject
+              _label("SUBJECT"),
+              SizedBox(height: 8.h),
+              _textField(
+                controller: _subjectCtrl,
+                hint: "Brief description of your issue",
+                maxLines: 1,
+              ),
+              SizedBox(height: 20.h),
+
+              // Category
+              _label("CATEGORY (OPTIONAL)"),
+              SizedBox(height: 8.h),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedCategory,
+                hint: Text(
+                  "Select a category",
+                  style: TextStyle(
+                    color: Colors.grey.shade400,
+                    fontSize: 14.sp,
+                  ),
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade50,
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 14.h,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                    borderSide: BorderSide(color: drawerColor, width: 2),
+                  ),
+                ),
+                items: _categories
+                    .map(
+                      (c) => DropdownMenuItem(
+                        value: c,
+                        child: Text(
+                          c.replaceAll('_', ' ').toUpperCase(),
+                          style: TextStyle(fontSize: 13.sp),
+                        ),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => setState(() => _selectedCategory = v),
+              ),
+              SizedBox(height: 20.h),
+
+              // Description
+              _label("DESCRIBE YOUR PROBLEM"),
+              SizedBox(height: 8.h),
+              _textField(
+                controller: _descCtrl,
+                hint: "Provide details so we can help you faster...",
+                maxLines: 5,
+              ),
+              SizedBox(height: 28.h),
+
+              // Buttons
+              Consumer<SupportDeskProvider>(
+                builder: (_, provider, __) => Row(
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        title: "Cancel",
+                        onTap: () => Navigator.pop(context),
+                        primary: false,
+                        backgroundColor: Colors.white,
+                        textColor: Colors.grey.shade700,
+                        borderColor: Colors.grey.shade300,
+                        height: 50.h,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: provider.isCreatingTicket
+                          ? Container(
+                              height: 50.h,
+                              decoration: BoxDecoration(
+                                color: drawerColor,
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              alignment: Alignment.center,
+                              child: const CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : CustomButton(
+                              title: "Submit",
+                              onTap: _submit,
+                              backgroundColor: drawerColor,
+                              textColor: Colors.white,
+                              height: 50.h,
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 8.h),
+            ],
+          ),
         ),
       ),
     );

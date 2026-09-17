@@ -265,46 +265,43 @@ class _HallOfFameScreenState extends State<HallOfFameScreen> {
     );
   }
 
-Widget _buildFilterBar(HallOfFameProvider provider) {
-  final filters = ['all', 'olympiad', 'tournament', 'general'];
+  Widget _buildFilterBar(HallOfFameProvider provider) {
+    final filters = ['all', 'olympiad', 'tournament', 'general'];
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-    child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: filters.map((f) {
-          final isSelected = provider.selectedFilter == f;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: filters.map((f) {
+            final isSelected = provider.selectedFilter == f;
 
-          return GestureDetector(
-            onTap: () => provider.setFilter(f),
-            child: Container(
-              margin: const EdgeInsets.only(right: 10),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? drawerColor
-                    : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                f.toUpperCase(),
-                style: TextStyle(
-                  color:
-                      isSelected ? Colors.white : Colors.black,
-                  fontWeight: FontWeight.w600,
+            return GestureDetector(
+              onTap: () => provider.setFilter(f),
+              child: Container(
+                margin: const EdgeInsets.only(right: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? drawerColor : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  f.toUpperCase(),
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-          );
-        }).toList(),
+            );
+          }).toList(),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
 
 class _StatItem extends StatelessWidget {

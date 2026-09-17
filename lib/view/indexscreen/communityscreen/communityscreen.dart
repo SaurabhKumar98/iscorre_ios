@@ -1,8 +1,8 @@
 import 'package:firstedu/data/models/api_models/community_models/commentauthor.dart';
-import 'package:firstedu/view/indexscreen/communityscreen/blockusersheet.dart';
-import 'package:firstedu/view/indexscreen/communityscreen/newpostscreen.dart';
 import 'package:firstedu/data/models/api_models/community_models/communitypostmodels.dart'
     as api;
+import 'package:firstedu/view/indexscreen/communityscreen/blockusersheet.dart';
+import 'package:firstedu/view/indexscreen/communityscreen/newpostscreen.dart';
 import 'package:firstedu/view_models/authprovider/userSessionProvider.dart';
 import 'package:firstedu/view_models/communityprvider/commentprovider.dart';
 import 'package:firstedu/view_models/communityprvider/communityprovider.dart';
@@ -72,10 +72,7 @@ Widget _safeSheet(BuildContext context, {required List<Widget> children}) {
     child: SafeArea(
       top: false,
       child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: children,
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, children: children),
       ),
     ),
   );
@@ -1351,258 +1348,260 @@ class _CommentsSheetState extends State<_CommentsSheet> {
     final comments = cp.commentsFor(widget.post.id);
     final sending = cp.isSubmitting(widget.post.id);
 
-    return DraggableScrollableSheet(
-      initialChildSize: 0.75,
-      minChildSize: 0.4,
-      maxChildSize: 0.95,
-      builder: (_, ctrl) => Container(
-        decoration: const BoxDecoration(
-          color: _white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(top: 12, bottom: 4),
-              decoration: BoxDecoration(
-                color: _border,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                "Comments",
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: _txtPri,
+    return SafeArea(
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.75,
+        minChildSize: 0.4,
+        maxChildSize: 0.95,
+        builder: (_, ctrl) => Container(
+          decoration: const BoxDecoration(
+            color: _white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(top: 12, bottom: 4),
+                decoration: BoxDecoration(
+                  color: _border,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-            Container(height: 1, color: _border),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  "Comments",
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: _txtPri,
+                  ),
+                ),
+              ),
+              Container(height: 1, color: _border),
 
-            Expanded(
-              child: comments.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.chat_bubble_outline_rounded,
-                            size: 48,
-                            color: _txtSec.withValues(alpha: 0.3),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            "No comments yet.",
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: _txtSec,
-                            ),
-                          ),
-                          Text(
-                            "Be the first!",
-                            style: GoogleFonts.poppins(
-                              fontSize: 13,
-                              color: _txtSec.withValues(alpha: 0.6),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : ListView.builder(
-                      controller: ctrl,
-                      padding: const EdgeInsets.only(top: 8, bottom: 8),
-                      itemCount: comments.length,
-                      itemBuilder: (_, i) {
-                        final c = comments[i];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+              Expanded(
+                child: comments.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            _CT(
-                              c: c,
-                              postId: widget.post.id,
-                              ac: widget.accentColor,
-                              onReply: () => _startReply(
-                                c.id,
-                                c.author?.name ?? 'Someone',
-                              ),
-                              onMoreTap: () => _showCommentOptions(c),
+                            Icon(
+                              Icons.chat_bubble_outline_rounded,
+                              size: 48,
+                              color: _txtSec.withValues(alpha: 0.3),
                             ),
-                            ...c.replies.map(
-                              (r) => Padding(
-                                padding: const EdgeInsets.only(left: 52),
-                                child: _RT(
-                                  r: r,
-                                  postId: widget.post.id,
-                                  commentId: c.id,
-                                  ac: widget.accentColor,
-                                  onMoreTap: () => _showReplyOptions(c, r),
-                                ),
+                            const SizedBox(height: 12),
+                            Text(
+                              "No comments yet.",
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: _txtSec,
+                              ),
+                            ),
+                            Text(
+                              "Be the first!",
+                              style: GoogleFonts.poppins(
+                                fontSize: 13,
+                                color: _txtSec.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
-                        );
-                      },
-                    ),
-            ),
-
-            Container(
-              decoration: BoxDecoration(
-                color: _white,
-                border: Border(top: BorderSide(color: _border)),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: 46,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
+                        ),
+                      )
+                    : ListView.builder(
+                        controller: ctrl,
+                        padding: const EdgeInsets.only(top: 8, bottom: 8),
+                        itemCount: comments.length,
+                        itemBuilder: (_, i) {
+                          final c = comments[i];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _CT(
+                                c: c,
+                                postId: widget.post.id,
+                                ac: widget.accentColor,
+                                onReply: () => _startReply(
+                                  c.id,
+                                  c.author?.name ?? 'Someone',
+                                ),
+                                onMoreTap: () => _showCommentOptions(c),
+                              ),
+                              ...c.replies.map(
+                                (r) => Padding(
+                                  padding: const EdgeInsets.only(left: 52),
+                                  child: _RT(
+                                    r: r,
+                                    postId: widget.post.id,
+                                    commentId: c.id,
+                                    ac: widget.accentColor,
+                                    onMoreTap: () => _showReplyOptions(c, r),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
-                      itemCount: _quickEmojis.length,
-                      itemBuilder: (_, i) => GestureDetector(
-                        onTap: () => _emoji(_quickEmojis[i]),
-                        child: Container(
-                          margin: const EdgeInsets.only(right: 10),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _bg,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: _border),
-                          ),
-                          child: Text(
-                            _quickEmojis[i],
-                            style: const TextStyle(fontSize: 18),
+              ),
+
+              Container(
+                decoration: BoxDecoration(
+                  color: _white,
+                  border: Border(top: BorderSide(color: _border)),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: 46,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        itemCount: _quickEmojis.length,
+                        itemBuilder: (_, i) => GestureDetector(
+                          onTap: () => _emoji(_quickEmojis[i]),
+                          child: Container(
+                            margin: const EdgeInsets.only(right: 10),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _bg,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: _border),
+                            ),
+                            child: Text(
+                              _quickEmojis[i],
+                              style: const TextStyle(fontSize: 18),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  if (_replyAuthorName != null)
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(14, 6, 14, 4),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.reply_rounded,
-                            size: 14,
-                            color: widget.accentColor,
-                          ),
-                          const SizedBox(width: 5),
-                          Expanded(
-                            child: Text(
-                              "Replying to @$_replyAuthorName",
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: widget.accentColor,
-                                fontWeight: FontWeight.w600,
+                    if (_replyAuthorName != null)
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(14, 6, 14, 4),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.reply_rounded,
+                              size: 14,
+                              color: widget.accentColor,
+                            ),
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: Text(
+                                "Replying to @$_replyAuthorName",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: widget.accentColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: _cancelReply,
-                            child: const Icon(
-                              Icons.close_rounded,
-                              size: 14,
-                              color: _txtSec,
+                            GestureDetector(
+                              onTap: _cancelReply,
+                              child: const Icon(
+                                Icons.close_rounded,
+                                size: 14,
+                                color: _txtSec,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        14,
+                        6,
+                        14,
+                        MediaQuery.of(context).viewInsets.bottom + 12,
+                      ),
+                      child: Row(
+                        children: [
+                          _Av(i: "Y", c: _orange, s: 36),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              controller: _ctrl,
+                              focusNode: _fn,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: _txtPri,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: _replyAuthorName != null
+                                    ? "Reply to @$_replyAuthorName..."
+                                    : "Join the conversation...",
+                                hintStyle: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  color: _txtSec.withValues(alpha: 0.55),
+                                ),
+                                filled: true,
+                                fillColor: _bg,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 10,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                  borderSide: BorderSide(
+                                    color: widget.accentColor.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                  ),
+                                ),
+                                suffixIcon: sending
+                                    ? Padding(
+                                        padding: const EdgeInsets.all(10),
+                                        child: SizedBox(
+                                          width: 16,
+                                          height: 16,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: widget.accentColor,
+                                          ),
+                                        ),
+                                      )
+                                    : GestureDetector(
+                                        onTap: _submit,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 6,
+                                          ),
+                                          child: Icon(
+                                            Icons.send_rounded,
+                                            color: widget.accentColor,
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                              onSubmitted: (_) => _submit(),
                             ),
                           ),
                         ],
                       ),
                     ),
-
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      14,
-                      6,
-                      14,
-                      MediaQuery.of(context).viewInsets.bottom + 12,
-                    ),
-                    child: Row(
-                      children: [
-                        _Av(i: "Y", c: _orange, s: 36),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: TextField(
-                            controller: _ctrl,
-                            focusNode: _fn,
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
-                              color: _txtPri,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: _replyAuthorName != null
-                                  ? "Reply to @$_replyAuthorName..."
-                                  : "Join the conversation...",
-                              hintStyle: GoogleFonts.poppins(
-                                fontSize: 14,
-                                color: _txtSec.withValues(alpha: 0.55),
-                              ),
-                              filled: true,
-                              fillColor: _bg,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
-                                borderSide: BorderSide.none,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
-                                borderSide: BorderSide(
-                                  color: widget.accentColor.withValues(
-                                    alpha: 0.4,
-                                  ),
-                                ),
-                              ),
-                              suffixIcon: sending
-                                  ? Padding(
-                                      padding: const EdgeInsets.all(10),
-                                      child: SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: widget.accentColor,
-                                        ),
-                                      ),
-                                    )
-                                  : GestureDetector(
-                                      onTap: _submit,
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(
-                                          right: 6,
-                                        ),
-                                        child: Icon(
-                                          Icons.send_rounded,
-                                          color: widget.accentColor,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ),
-                            ),
-                            onSubmitted: (_) => _submit(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
